@@ -1,0 +1,8 @@
+# Copy this file to .dev.vars when previewing in the Workers runtime.
+NEXTJS_ENV=development
+
+# Supabase values are loaded through the same process.env API on Workers.
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SITE_URL=http://localhost:8787
