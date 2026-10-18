@@ -43,6 +43,17 @@ For local Workers previews, copy `.dev.vars.example` to `.dev.vars` and replace 
 
 Public search deliberately returns zero results until approved merchants and real offers are present. Never seed production with fictional offers.
 
+## Admin dashboard
+
+Apply both database migrations in order:
+
+1. `supabase/migrations/001_initial_schema.sql`
+2. `supabase/migrations/002_admin_dashboard.sql`
+
+The admin dashboard is available at `/admin`. Access requires a verified Supabase session whose trusted Auth `app_metadata.role` is exactly `admin`. Administrator roles must be assigned with the Supabase Admin API from a secure server or one-off local script using the service-role key; never expose that key in browser code and never store authorization roles in user-editable `user_metadata`.
+
+Every admin Server Action verifies the current user again before using the server-only client. Merchant status changes, product changes, and offer visibility changes are recorded in `admin_audit_logs`.
+
 ## Security model
 
 - Public results come only from active offers belonging to approved merchants.

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { SearchFilters, SearchOffer } from "@/lib/types";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function searchOffers(params: {
   query: string;
@@ -28,6 +29,10 @@ export async function searchOffers(params: {
     return { offers: [] as SearchOffer[], total: 0, filters: emptyFilters };
   }
   const offers = (data ?? []) as SearchOffer[];
+  if (params.page === 1) {
+    const admin = createAdminClient();
+    if (admin) await admin.from("search_events").insert({ query: params.query, result_count: offers[0]?.total_count ?? 0 });
+  }
   return {
     offers,
     total: offers[0]?.total_count ?? 0,

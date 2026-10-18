@@ -6,7 +6,8 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const tokenHash = url.searchParams.get("token_hash");
   const type = url.searchParams.get("type") as EmailOtpType | null;
-  const next = url.searchParams.get("next")?.startsWith("/") ? url.searchParams.get("next")! : "/dashboard";
+  const requestedNext = url.searchParams.get("next");
+  const next = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/dashboard";
   const supabase = await createClient();
   if (tokenHash && type && supabase) {
     const { data, error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });

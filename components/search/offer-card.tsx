@@ -3,6 +3,7 @@ import { ExternalLink, MapPin, MessageCircle, Package } from "lucide-react";
 import type { SearchOffer } from "@/lib/types";
 import { formatPrice, safeWebsiteUrl, whatsappUrl } from "@/lib/utils";
 import { label } from "./filters";
+import { WhatsAppLink } from "./whatsapp-link";
 
 export function OfferCard({ offer }: { offer: SearchOffer }) {
   const site = safeWebsiteUrl(offer.website);
@@ -16,11 +17,11 @@ export function OfferCard({ offer }: { offer: SearchOffer }) {
       <p className="mt-1 text-xs text-[#6D7971] sm:text-sm">{offer.brand}{offer.model ? ` · ${offer.model}` : ""}</p>
       {offer.specifications && <p className="mt-1 truncate text-xs text-[#7C8880]">{Object.entries(offer.specifications).map(([k, v]) => `${k}: ${v}`).join(" · ")}</p>}
       <div className="mt-3 flex items-center gap-1 text-xs text-[#5E6C63]"><MapPin className="size-3.5 text-[#07834A]" /><span className="font-semibold text-[#344138]">{offer.merchant_name}</span><span>· {offer.city}</span></div>
-      <div className="mt-3 sm:hidden"><p className="text-lg font-black text-[#07834A]">{formatPrice(offer.price, offer.currency)}</p><a href={whatsappUrl(offer.whatsapp, offer.product_name)} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#07834A]"><MessageCircle className="size-4" /> WhatsApp</a></div>
+      <div className="mt-3 sm:hidden"><p className="text-lg font-black text-[#07834A]">{formatPrice(offer.price, offer.currency)}</p><WhatsAppLink offerId={offer.offer_id} href={whatsappUrl(offer.whatsapp, offer.product_name)} className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#07834A]"><MessageCircle className="size-4" /> WhatsApp</WhatsAppLink></div>
     </div>
     <div className="hidden min-w-40 flex-col items-end justify-between sm:flex">
       <div className="text-right"><p className="text-2xl font-black tracking-tight text-[#07834A]">{formatPrice(offer.price, offer.currency)}</p><p className="mt-1 text-[11px] text-[#849087]">Listed in {offer.currency}</p></div>
-      <div className="flex w-full flex-col gap-2"><a href={whatsappUrl(offer.whatsapp, offer.product_name)} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[#07834A] px-4 text-sm font-bold text-white hover:bg-[#056B3D]"><MessageCircle className="size-4" /> WhatsApp</a>{site && <a href={site} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#D9E1DC] text-sm font-semibold hover:border-[#07834A] hover:text-[#07834A]">Visit website <ExternalLink className="size-3.5" /></a>}</div>
+      <div className="flex w-full flex-col gap-2"><WhatsAppLink offerId={offer.offer_id} href={whatsappUrl(offer.whatsapp, offer.product_name)} className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[#07834A] px-4 text-sm font-bold text-white hover:bg-[#056B3D]"><MessageCircle className="size-4" /> WhatsApp</WhatsAppLink>{site && <a href={site} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#D9E1DC] text-sm font-semibold hover:border-[#07834A] hover:text-[#07834A]">Visit website <ExternalLink className="size-3.5" /></a>}</div>
     </div>
   </article>;
 }
