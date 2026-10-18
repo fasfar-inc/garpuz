@@ -1,4 +1,4 @@
-create extension if not exists pg_trgm;
+create extension if not exists pg_trgm with schema extensions;
 create extension if not exists unaccent;
 
 create type public.merchant_status as enum ('pending', 'approved', 'rejected', 'suspended');
@@ -115,7 +115,7 @@ before insert or update on public.merchants
 for each row execute function private.protect_merchant_authorization_fields();
 
 create index canonical_products_search_document_idx on public.canonical_products using gin(search_document);
-create index canonical_products_search_text_trgm_idx on public.canonical_products using gin(search_text gin_trgm_ops);
+create index canonical_products_search_text_trgm_idx on public.canonical_products using gin(search_text extensions.gin_trgm_ops);
 create index merchant_offers_product_idx on public.merchant_offers(product_id) where is_active;
 create index merchants_public_idx on public.merchants(status, city);
 
@@ -136,11 +136,11 @@ create or replace function public.search_public_offers(
     select o.id offer_id, p.id product_id, p.name product_name, p.brand, p.model, p.specifications,
       p.image_url, m.business_name merchant_name, m.city, o.price, o.currency, o.condition,
       o.availability, m.whatsapp, m.website,
-      greatest(ts_rank(p.search_document, n.query), public.similarity(p.search_text, n.compact)) relevance
+      greatest(ts_rank(p.search_document, n.query), extensions.similarity(p.search_text, n.compact)) relevance
     from public.merchant_offers o join public.canonical_products p on p.id = o.product_id
     join public.merchants m on m.id = o.merchant_id cross join normalized n
     where m.status = 'approved'::public.merchant_status and m.whatsapp is not null and o.is_active
-      and (p.search_document @@ n.query or p.search_text % n.compact or p.search_text like '%' || n.compact || '%')
+      and (p.search_document @@ n.query or p.search_text operator(extensions.%) n.compact or p.search_text like '%' || n.compact || '%')
       and (city_filter is null or m.city = city_filter)
       and (condition_filter is null or o.condition::text = condition_filter)
       and (brand_filter is null or p.brand = brand_filter)
