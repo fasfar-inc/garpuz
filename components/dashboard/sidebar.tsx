@@ -1,0 +1,5 @@
+import Link from "next/link";
+import { Boxes, FileUp, LayoutDashboard, Settings, Store } from "lucide-react";
+import { Logo } from "@/components/logo";
+const items = [{ name: "Overview", icon: LayoutDashboard, href: "/dashboard" }, { name: "Products", icon: Boxes, href: "/dashboard/products" }, { name: "Import Catalog", icon: FileUp, href: "/dashboard/import" }, { name: "Shop Profile", icon: Store, href: "/dashboard/profile" }, { name: "Settings", icon: Settings, href: "/dashboard/settings" }];
+export function Sidebar() { return <aside className="border-b border-[#E3E9E5] bg-white lg:min-h-screen lg:w-64 lg:border-b-0 lg:border-r"><div className="flex h-16 items-center px-5"><Logo /></div><nav className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:py-4">{items.map(({ name, icon: Icon, href }, index) => <Link key={name} href={href} className={`flex h-10 shrink-0 items-center gap-3 rounded-lg px-3 text-sm font-semibold ${index === 0 ? "bg-[#EAF6F0] text-[#07834A]" : "text-[#5D6A62] hover:bg-[#F3F6F4]"}`}><Icon className="size-4" />{name}</Link>)}</nav></aside>; }

@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { ArrowLeft, Construction } from "lucide-react";
+const names: Record<string, string> = { products: "Products", import: "Import Catalog", profile: "Shop Profile", settings: "Settings" };
+export default async function DashboardSection({ params }: { params: Promise<{ section: string }> }) { const { section } = await params; const name = names[section] ?? "Dashboard"; return <main className="grid min-h-[70vh] place-items-center p-5"><div className="text-center"><Construction className="mx-auto size-8 text-[#07834A]" /><h1 className="mt-4 text-2xl font-bold">{name}</h1><p className="mt-2 text-sm text-[#68766D]">This workspace is ready for your approved merchant account.</p><Link href="/dashboard" className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#07834A]"><ArrowLeft className="size-4" /> Back to overview</Link></div></main>; }
