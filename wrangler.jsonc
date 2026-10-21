@@ -10,6 +10,12 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // Per-IP limits for search analytics and WhatsApp click tracking (see lib/rate-limit.ts).
+  // namespace_id values only need to be unique within your Cloudflare account.
+  "ratelimits": [
+    { "name": "SEARCH_RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 60, "period": 60 } },
+    { "name": "CONTACT_RATE_LIMITER", "namespace_id": "1002", "simple": { "limit": 20, "period": 60 } }
+  ],
   "observability": {
     "enabled": true
   }

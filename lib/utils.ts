@@ -12,8 +12,7 @@ export function normalizePhone(value: string) {
   return digits;
 }
 
-export function whatsappUrl(phone: string, productName: string) {
-  const message = `Hello, I found your ${productName} on Garpuz. Is it still available?`;
+export function whatsappUrl(phone: string, message: string) {
   return `https://wa.me/${normalizePhone(phone)}?text=${encodeURIComponent(message)}`;
 }
 
@@ -22,6 +21,16 @@ export function safeWebsiteUrl(value?: string | null) {
   try {
     const url = new URL(value);
     return ["http:", "https:"].includes(url.protocol) ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function safeImageUrl(value?: string | null) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" ? url.toString() : null;
   } catch {
     return null;
   }

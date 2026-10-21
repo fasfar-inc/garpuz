@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Boxes, LayoutDashboard, Settings, ShoppingBasket, Store } from "lucide-react";
+import { BarChart3, Boxes, LayoutDashboard, LogOut, Settings, ShoppingBasket, Store } from "lucide-react";
 
 const items = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
@@ -21,6 +21,6 @@ export function AdminSidebar({ email }: { email: string }) {
       const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
       return <Link key={href} href={href} className={`flex h-11 shrink-0 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition ${active ? "bg-[#07834A] text-white" : "text-white/65 hover:bg-white/7 hover:text-white"}`}><Icon className="size-[17px]" />{label}</Link>;
     })}</nav>
-    <div className="hidden border-t border-white/10 p-5 lg:block"><p className="truncate text-xs font-semibold text-white/75">{email}</p><p className="mt-1 text-[11px] text-white/40">Administrator session</p></div>
+    <div className="flex items-center justify-between gap-3 border-t border-white/10 px-5 py-3 lg:block lg:p-5"><p className="hidden truncate text-xs font-semibold text-white/75 lg:block">{email}</p><p className="mt-1 hidden text-[11px] text-white/40 lg:block">Administrator session</p><form action="/auth/signout" method="post" className="lg:mt-3"><button className="flex items-center gap-2 text-xs font-bold text-white/65 hover:text-white"><LogOut className="size-4" />Sign out</button></form></div>
   </aside>;
 }

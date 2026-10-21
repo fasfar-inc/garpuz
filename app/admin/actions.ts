@@ -13,7 +13,7 @@ const productSchema = z.object({
   brand: z.string().trim().min(1).max(100),
   model: z.string().trim().max(120).optional(),
   category: z.string().trim().min(2).max(100),
-  imageUrl: z.union([z.literal(""), z.string().trim().url().max(500)]).optional(),
+  imageUrl: z.union([z.literal(""), z.string().trim().url().max(500).refine((url) => url.startsWith("https://"), "Image URL must use https")]).optional(),
   specifications: z.string().trim().max(10000).default("{}"),
 });
 

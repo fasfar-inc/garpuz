@@ -1,12 +1,27 @@
 import type { Metadata } from "next";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: { default: "Garpuz — Find it locally", template: "%s | Garpuz" },
-  description: "Search products from trusted local shops across North Cyprus and compare prices.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, t } = await getDictionary();
+  return {
+    metadataBase: new URL(siteUrl()),
+    title: { default: t.meta.title, template: "%s | Garpuz" },
+    description: t.meta.description,
+    applicationName: "Garpuz",
+    openGraph: {
+      type: "website",
+      siteName: "Garpuz",
+      title: t.meta.title,
+      description: t.meta.description,
+      locale: locale === "tr" ? "tr_TR" : "en_GB",
+      images: [{ url: "/watermelon-mark.png", width: 1536, height: 1024, alt: "Garpuz" }],
+    },
+    twitter: { card: "summary_large_image", title: t.meta.title, description: t.meta.description, images: ["/watermelon-mark.png"] },
+  };
+}
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return <html lang={await getLocale()}><body>{children}</body></html>;
 }
