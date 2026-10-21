@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, FileText, MapPin, Phone, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ExternalLink, FileText, ShieldCheck } from "lucide-react";
 import { notFound } from "next/navigation";
 import { updateMerchantStatus } from "@/app/admin/actions";
 import { formatDate, getNotice, Notice, PageHeader, StatusBadge } from "@/components/admin/ui";

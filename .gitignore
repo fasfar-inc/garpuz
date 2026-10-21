@@ -10,3 +10,5 @@ out
 .wrangler
 .dev.vars*
 !.dev.vars.example
+*.tsbuildinfo
+coverage
