@@ -28,7 +28,7 @@ export async function updateMerchantStatus(formData: FormData) {
   const { user, admin } = await requireAdminMutation();
   const { data: before, error: readError } = await admin.from("merchants").select("status,business_name").eq("id", parsed.data.id).maybeSingle();
   if (readError || !before) redirect("/admin/merchants?error=Merchant+not+found");
-  const { error } = await admin.from("merchants").update({ status: parsed.data.status, updated_at: new Date().toISOString() }).eq("id", parsed.data.id);
+  const { error } = await admin.from("merchants").update({ status: parsed.data.status }).eq("id", parsed.data.id);
   if (error) redirect(`/admin/merchants?error=${encodeURIComponent(error.message)}`);
   await logAction(admin, user.id, "merchant.status_changed", "merchant", parsed.data.id, { from: before.status, to: parsed.data.status, shop: before.business_name });
   revalidatePath("/admin"); revalidatePath("/admin/merchants"); revalidatePath(`/admin/merchants/${parsed.data.id}`);
@@ -57,13 +57,14 @@ export async function saveProduct(formData: FormData) {
 }
 
 export async function toggleOffer(formData: FormData) {
-  const parsed = z.object({ id: idSchema, active: z.enum(["true", "false"]) }).safeParse({ id: formData.get("id"), active: formData.get("active") });
+  const parsed = z.object({ id: idSchema, hidden: z.enum(["true", "false"]) }).safeParse({ id: formData.get("id"), hidden: formData.get("hidden") });
   if (!parsed.success) redirect("/admin/offers?error=Invalid+offer+request");
   const { user, admin } = await requireAdminMutation();
-  const active = parsed.data.active === "true";
-  const { data, error } = await admin.from("merchant_offers").update({ is_active: active, updated_at: new Date().toISOString() }).eq("id", parsed.data.id).select("id").maybeSingle();
+  const hidden = parsed.data.hidden === "true";
+  // admin_hidden can only be changed by administrators, so a shop cannot undo moderation.
+  const { data, error } = await admin.from("merchant_offers").update({ admin_hidden: hidden }).eq("id", parsed.data.id).select("id").maybeSingle();
   if (error || !data) redirect("/admin/offers?error=Offer+not+found");
-  await logAction(admin, user.id, active ? "offer.enabled" : "offer.disabled", "merchant_offer", parsed.data.id, { is_active: active });
+  await logAction(admin, user.id, hidden ? "offer.hidden" : "offer.unhidden", "merchant_offer", parsed.data.id, { admin_hidden: hidden });
   revalidatePath("/admin"); revalidatePath("/admin/offers");
-  redirect(`/admin/offers?notice=${active ? "Offer+enabled" : "Offer+disabled"}`);
+  redirect(`/admin/offers?notice=${hidden ? "Offer+hidden+from+search" : "Offer+visible+again"}`);
 }

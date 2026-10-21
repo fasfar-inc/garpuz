@@ -11,11 +11,12 @@ export type MerchantRow = {
 export type ProductRow = {
   id: string; name: string; brand: string; model: string | null; category: string;
   specifications: Record<string, unknown>; image_url: string | null; created_at: string;
+  created_by_merchant_id?: string | null;
 };
 
 export type OfferRow = {
   id: string; merchant_id: string; product_id: string; price: number; currency: string;
-  condition: string; availability: string; is_active: boolean; updated_at: string;
+  condition: string; availability: string; is_active: boolean; admin_hidden: boolean; updated_at: string;
   merchants: { business_name: string } | { business_name: string }[] | null;
   canonical_products: { name: string; brand: string } | { name: string; brand: string }[] | null;
 };

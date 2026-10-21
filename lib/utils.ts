@@ -12,8 +12,7 @@ export function normalizePhone(value: string) {
   return digits;
 }
 
-export function whatsappUrl(phone: string, productName: string) {
-  const message = `Hello, I found your ${productName} on Garpuz. Is it still available?`;
+export function whatsappUrl(phone: string, message: string) {
   return `https://wa.me/${normalizePhone(phone)}?text=${encodeURIComponent(message)}`;
 }
 
