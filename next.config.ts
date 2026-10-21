@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
     ],
   },
   poweredByHeader: false,
+  experimental: {
+    serverActions: {
+      // Verification documents can be up to 5 MB, plus multipart overhead.
+      bodySizeLimit: "6mb",
+    },
+  },
 };
 
 export default nextConfig;
