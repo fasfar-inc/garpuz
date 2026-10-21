@@ -2,7 +2,7 @@
 
 -- 1. Owners may only touch their own profile fields. Status, ownership, email and
 --    the verification document path are written exclusively by trusted server code
---    (service role) or administrators.
+--    using the service role (the admin dashboard's Server Actions do exactly that).
 revoke insert, update on public.merchants from authenticated;
 grant insert (user_id, business_name, category, email) on public.merchants to authenticated;
 grant update (business_name, representative_name, phone, whatsapp, city, address, website, registration_number, updated_at)
