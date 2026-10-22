@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-const schema = z.object({ businessName: z.string().trim().min(2).max(120), category: z.string().trim().min(2).max(80) });
+import { SHOP_CATEGORIES } from "@/lib/validation";
+const schema = z.object({ businessName: z.string().trim().min(2).max(120), category: z.enum(SHOP_CATEGORIES) });
 export async function POST(request: Request) {
   const supabase = await createClient(); if (!supabase) return NextResponse.json({ message: "Supabase is not configured." }, { status: 503 });
   const { data: { user } } = await supabase.auth.getUser(); if (!user?.email) return NextResponse.json({ message: "Please continue with Google first." }, { status: 401 });
