@@ -55,4 +55,9 @@ export const searchSchema = z.object({
   page: z.coerce.number().int().positive().max(500).default(1),
 });
 
+// Browsing by catalog category. Characters PostgREST treats as filter syntax or wildcards are rejected.
+export const categoryBrowseSchema = searchSchema.omit({ q: true }).extend({
+  category: z.string().trim().min(1).max(80).regex(/^[^*%_\\,()]+$/),
+});
+
 export type ProfileInput = z.infer<typeof profileSchema>;

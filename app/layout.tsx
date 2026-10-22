@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { getDictionary, getLocale } from "@/lib/i18n/server";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
+
+// Self-hosted at build time; latin-ext covers Turkish characters.
+const inter = Inter({ subsets: ["latin", "latin-ext"], display: "swap", variable: "--font-inter" });
 
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, t } = await getDictionary();
@@ -23,5 +27,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang={await getLocale()}><body>{children}</body></html>;
+  return <html lang={await getLocale()} className={inter.variable}><body>{children}</body></html>;
 }
