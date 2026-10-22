@@ -21,11 +21,6 @@ const en = {
   home: {
     tagline: "Find it locally. Compare prices.",
     popularSearches: "Popular searches",
-    benefits: [
-      { title: "Local shops", body: "Discover products in North Cyprus." },
-      { title: "Compare prices", body: "Find the best offers easily." },
-      { title: "Find faster", body: "Save time and contact sellers directly." },
-    ],
     categoriesHeading: "Browse popular categories",
     categoriesHeadingShort: "Browse categories",
     viewAllCategories: "View all categories",
@@ -257,11 +252,6 @@ const tr: Dictionary = {
   home: {
     tagline: "Yerelde bul. Fiyatları karşılaştır.",
     popularSearches: "Popüler aramalar",
-    benefits: [
-      { title: "Yerel mağazalar", body: "Kuzey Kıbrıs’taki ürünleri keşfedin." },
-      { title: "Fiyatları karşılaştır", body: "En iyi teklifleri kolayca bulun." },
-      { title: "Daha hızlı bul", body: "Zaman kazanın, satıcılarla doğrudan iletişime geçin." },
-    ],
     categoriesHeading: "Popüler kategorilere göz atın",
     categoriesHeadingShort: "Kategorilere göz atın",
     viewAllCategories: "Tüm kategoriler",

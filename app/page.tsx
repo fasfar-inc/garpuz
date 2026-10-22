@@ -1,4 +1,3 @@
-import { Benefits } from "@/components/home/benefits";
 import { CategoryGrid } from "@/components/home/category-grid";
 import { NorthCyprus } from "@/components/home/north-cyprus";
 import { PopularSearches } from "@/components/home/popular-searches";
@@ -21,7 +20,6 @@ export default async function Home() {
         <div className="mt-6 w-full sm:mt-10 sm:max-w-[820px]"><SearchBox labels={t.searchBox} /></div>
         <PopularSearches heading={h.popularSearches} />
       </section>
-      <Benefits items={h.benefits} />
       <CategoryGrid labels={{ heading: h.categoriesHeading, headingShort: h.categoriesHeadingShort, viewAll: h.viewAllCategories, viewAllShort: h.viewAll, names: t.productCategories }} />
     </div>
     <NorthCyprus title={h.northCyprus} tagline={h.northCyprusTagline} creditLabel={h.photoCredit} slideshow={h.slideshow} />
