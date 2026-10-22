@@ -8,7 +8,7 @@ export function Filters({ filters, values, t }: { filters: SearchFilters; values
   // A filter stays visible while it is applied, even if only one option remains.
   const show = (options: string[], value?: string) => options.length > 1 || Boolean(value);
   return <form className="flex items-center gap-2 overflow-x-auto pb-1" aria-label={f.label}>
-    <input type="hidden" name="q" value={values.q} />
+    {values.category ? <input type="hidden" name="category" value={values.category} /> : <input type="hidden" name="q" value={values.q} />}
     <SlidersHorizontal className="mr-1 size-4 shrink-0 text-[#69766E]" />
     <select className={selectClass} name="sort" defaultValue={values.sort ?? "relevance"} aria-label={f.sort}><option value="relevance">{f.relevance}</option><option value="price_asc">{f.priceAsc}</option><option value="price_desc">{f.priceDesc}</option></select>
     {show(filters.cities, values.city) && <select className={selectClass} name="city" defaultValue={values.city ?? ""} aria-label={f.location}><option value="">{f.allLocations}</option>{filters.cities.map((v) => <option key={v}>{v}</option>)}</select>}
