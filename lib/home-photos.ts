@@ -18,15 +18,13 @@ export type CityPhoto = {
 /**
  * City photos for the North Cyprus banner, shown in this order and changing every few seconds.
  * With one photo the banner is static; with none it shows a sky-to-sea gradient.
- * Girne comes from the approved homepage mockup supplied by the site owner (its baked-in label
- * and tagline removed).
+ * Supplied by the site owner; their baked-in name labels were removed because the banner shows
+ * the city name itself. `position` keeps each landmark in frame on narrow screens.
  */
 export const CITY_PHOTOS: CityPhoto[] = [
-  {
-    city: "Girne",
-    src: "/home/north-cyprus.webp",
-    alt: "Girne harbour and castle with the Kyrenia mountains behind",
-    position: "38% 70%",
-    mobileZoom: { scale: 1.3, origin: "38% 100%" },
-  },
+  { city: "Girne", src: "/home/cities/girne.webp", alt: "Girne harbour and castle below the Kyrenia mountains", position: "30% 55%" },
+  { city: "Lefkoşa", src: "/home/cities/lefkosa.webp", alt: "The Selimiye Mosque above the rooftops of Lefkoşa", position: "50% 45%" },
+  { city: "Gazimağusa", src: "/home/cities/gazimagusa.webp", alt: "The Lala Mustafa Pasha Mosque in the old town of Gazimağusa", position: "55% 45%" },
+  { city: "İskele", src: "/home/cities/iskele.webp", alt: "Long sandy beach and seafront hotels in İskele", position: "62% 50%" },
+  { city: "Güzelyurt", src: "/home/cities/guzelyurt.webp", alt: "Orange groves below the mountains at Güzelyurt", position: "50% 40%" },
 ];
