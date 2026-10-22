@@ -10,7 +10,7 @@ const ICONS: Record<string, LucideIcon> = {
 type Labels = { heading: string; headingShort: string; viewAll: string; viewAllShort: string; names: Record<string, string> };
 
 export function CategoryGrid({ labels }: { labels: Labels }) {
-  return <section aria-labelledby="categories-heading" className="mt-8 border-t border-[#E9EDEA] pt-6 sm:mt-14 sm:pt-9">
+  return <section aria-labelledby="categories-heading" className="mt-8 border-t border-[#E9EDEA] pt-6 sm:mt-12 sm:pt-9">
     <div className="flex items-baseline justify-between gap-4">
       <h2 id="categories-heading" className="text-[16px] font-bold text-[#17211B] sm:text-[22px]"><span className="sm:hidden">{labels.headingShort}</span><span className="hidden sm:inline">{labels.heading}</span></h2>
       <Link href="/categories" className="inline-flex shrink-0 items-center gap-1.5 rounded text-[14px] font-medium text-[#07834A] hover:text-[#056B3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07834A]/40 sm:text-[16px]">

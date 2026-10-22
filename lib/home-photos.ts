@@ -4,14 +4,27 @@
  */
 export type PhotoCredit = { author: string; license: string; licenseUrl: string; source: string };
 
-export type Photo = { src: string; alt: string; position: string; credit?: PhotoCredit };
+export type CityPhoto = {
+  city: string;
+  src: string;
+  alt: string;
+  /** CSS object-position for the crop. */
+  position: string;
+  /** Optional zoom on phones, anchored at `origin`, for wide panoramas whose subject is small. */
+  mobileZoom?: { scale: number; origin: string };
+  credit?: PhotoCredit;
+};
 
 /**
- * The North Cyprus banner, taken from the approved homepage mockup supplied by the site owner
- * (its baked-in label and tagline removed). Set to null to fall back to a sky-to-sea gradient.
+ * City photos for the North Cyprus banner, shown in this order and changing every few seconds.
+ * With one photo the banner is static; with none it shows a sky-to-sea gradient.
+ * Supplied by the site owner; their baked-in name labels were removed because the banner shows
+ * the city name itself. `position` keeps each landmark in frame on narrow screens.
  */
-export const NORTH_CYPRUS_PHOTO: Photo | null = {
-  src: "/home/north-cyprus.webp",
-  alt: "Girne harbour and castle with the Kyrenia mountains behind",
-  position: "38% 70%",
-};
+export const CITY_PHOTOS: CityPhoto[] = [
+  { city: "Girne", src: "/home/cities/girne.webp", alt: "Girne harbour and castle below the Kyrenia mountains", position: "30% 55%" },
+  { city: "Lefkoşa", src: "/home/cities/lefkosa.webp", alt: "The Selimiye Mosque above the rooftops of Lefkoşa", position: "50% 45%" },
+  { city: "Gazimağusa", src: "/home/cities/gazimagusa.webp", alt: "The Lala Mustafa Pasha Mosque in the old town of Gazimağusa", position: "55% 45%" },
+  { city: "İskele", src: "/home/cities/iskele.webp", alt: "Long sandy beach and seafront hotels in İskele", position: "62% 50%" },
+  { city: "Güzelyurt", src: "/home/cities/guzelyurt.webp", alt: "Orange groves below the mountains at Güzelyurt", position: "50% 40%" },
+];
