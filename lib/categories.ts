@@ -3,14 +3,15 @@
  * (`canonical_products.category`) and used in `/search?category=` links; matching is
  * case-insensitive. Labels are translated through `t.productCategories`.
  */
-export const FEATURED_CATEGORIES = [
-  { name: "Mobile Phones", image: "/home/categories/mobile-phones.webp" },
-  { name: "Computers", image: "/home/categories/computers.webp" },
-  { name: "Gaming", image: "/home/categories/gaming.webp" },
-  { name: "Electronics", image: "/home/categories/electronics.webp" },
-  { name: "Accessories", image: "/home/categories/accessories.webp" },
-  { name: "Home Appliances", image: "/home/categories/home-appliances.webp" },
-] as const;
+// Photos are not added yet; a card without `image` shows its category icon instead.
+export const FEATURED_CATEGORIES: readonly { name: string; image?: string }[] = [
+  { name: "Mobile Phones" },
+  { name: "Computers" },
+  { name: "Gaming" },
+  { name: "Electronics" },
+  { name: "Accessories" },
+  { name: "Home Appliances" },
+];
 
 export type FeaturedCategory = (typeof FEATURED_CATEGORIES)[number];
 

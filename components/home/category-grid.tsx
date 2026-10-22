@@ -1,7 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CookingPot, Gamepad2, Headphones, Laptop, Smartphone, Tv, type LucideIcon } from "lucide-react";
 import { categoryHref, FEATURED_CATEGORIES } from "@/lib/categories";
+
+const ICONS: Record<string, LucideIcon> = {
+  "Mobile Phones": Smartphone, Computers: Laptop, Gaming: Gamepad2, Electronics: Tv, Accessories: Headphones, "Home Appliances": CookingPot,
+};
 
 type Labels = { heading: string; headingShort: string; viewAll: string; viewAllShort: string; names: Record<string, string> };
 
@@ -24,8 +28,17 @@ export function CategoryCard({ name, label, image }: { name: string; label: stri
     <span className="relative block aspect-square w-[78%] sm:w-[80%]">
       {image
         ? <Image src={image} alt="" fill sizes="(min-width: 1024px) 130px, (min-width: 640px) 25vw, 30vw" className="object-contain mix-blend-multiply transition duration-300 group-hover:scale-[1.04]" />
-        : <span className="grid size-full place-items-center rounded-xl bg-white/60 text-2xl font-black text-[#B9C4BD]">{label.charAt(0)}</span>}
+        : <CategoryIcon name={name} label={label} />}
     </span>
     <span className="mt-2 whitespace-nowrap text-[11.5px] font-medium leading-tight text-[#17211B] sm:mt-3 sm:text-[15px]">{label}</span>
   </Link>;
+}
+
+function CategoryIcon({ name, label }: { name: string; label: string }) {
+  const Icon = ICONS[name];
+  return <span aria-hidden="true" className="grid size-full place-items-center">
+    {Icon
+      ? <Icon className="size-[46%] text-[#07834A] transition duration-300 group-hover:scale-[1.06]" strokeWidth={1.4} />
+      : <span className="text-[28px] font-black text-[#9FB3A6] sm:text-[36px]">{label.charAt(0).toLocaleUpperCase()}</span>}
+  </span>;
 }
