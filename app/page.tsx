@@ -24,7 +24,7 @@ export default async function Home() {
       <Benefits items={h.benefits} />
       <CategoryGrid labels={{ heading: h.categoriesHeading, headingShort: h.categoriesHeadingShort, viewAll: h.viewAllCategories, viewAllShort: h.viewAll, names: t.productCategories }} />
     </div>
-    <NorthCyprus title={h.northCyprus} tagline={h.northCyprusTagline} creditLabel={h.photoCredit} />
+    <NorthCyprus title={h.northCyprus} tagline={h.northCyprusTagline} creditLabel={h.photoCredit} slideshow={h.slideshow} />
     <SiteFooter />
   </main>;
 }
