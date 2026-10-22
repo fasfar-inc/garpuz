@@ -4,13 +4,14 @@ import { notFound } from "next/navigation";
 import { updateMerchantStatus } from "@/app/admin/actions";
 import { formatDate, getNotice, Notice, PageHeader, StatusBadge } from "@/components/admin/ui";
 import { requireAdminPage } from "@/lib/admin/auth";
+import { assertQueries } from "@/lib/admin/diagnostics";
 import type { MerchantRow } from "@/lib/admin/types";
 import { safeWebsiteUrl } from "@/lib/utils";
 
 export default async function MerchantDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { id } = await params; const raw = await searchParams; const { admin } = await requireAdminPage();
-  const { data, error } = await admin.from("merchants").select("*").eq("id", id).maybeSingle();
-  if (error) throw new Error(error.message); if (!data) notFound(); const merchant = data as MerchantRow;
+  const result = await admin.from("merchants").select("*").eq("id", id).maybeSingle();
+  assertQueries("merchant detail", { merchant: result }); const { data } = result; if (!data) notFound(); const merchant = data as MerchantRow;
   const signedDocument = merchant.verification_document_path
     ? (await admin.storage.from("business-verification").createSignedUrl(merchant.verification_document_path, 300)).data?.signedUrl
     : null;
