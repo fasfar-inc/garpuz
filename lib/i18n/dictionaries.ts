@@ -19,7 +19,8 @@ const en = {
   },
   nav: { addShop: "Add your shop", findProduct: "Find a product", about: "About Garpuz", privacy: "Privacy", terms: "Terms", contact: "Contact", home: "Garpuz home", language: "Language" },
   home: { tagline: "Find it locally. Compare prices." },
-  searchBox: { placeholder: "Search any product...", label: "Search products", submit: "Search" },
+  searchBox: { placeholder: "Search any product...", label: "Search products", submit: "Search", searching: "Searching local shops…" },
+  loading: "Loading…",
   search: {
     title: "Product search",
     matching: "matching",
@@ -226,7 +227,8 @@ const tr: Dictionary = {
   },
   nav: { addShop: "Mağazanı ekle", findProduct: "Ürün bul", about: "Garpuz hakkında", privacy: "Gizlilik", terms: "Koşullar", contact: "İletişim", home: "Garpuz ana sayfa", language: "Dil" },
   home: { tagline: "Yerelde bul. Fiyatları karşılaştır." },
-  searchBox: { placeholder: "Herhangi bir ürünü ara...", label: "Ürün ara", submit: "Ara" },
+  searchBox: { placeholder: "Herhangi bir ürünü ara...", label: "Ürün ara", submit: "Ara", searching: "Yerel mağazalarda aranıyor…" },
+  loading: "Yükleniyor…",
   search: {
     title: "Ürün arama",
     matching: "eşleşen",
