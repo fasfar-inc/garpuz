@@ -24,13 +24,13 @@ export function CategoryGrid({ labels }: { labels: Labels }) {
 }
 
 export function CategoryCard({ name, label, image }: { name: string; label: string; image?: string }) {
-  return <Link href={categoryHref(name)} className="group flex h-full flex-col items-center rounded-[14px] bg-[#F3F4F3] px-2 pb-3 pt-3 text-center transition hover:bg-[#ECEFED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07834A]/50 sm:rounded-2xl sm:pb-4 sm:pt-4">
-    <span className="relative block aspect-square w-[78%] sm:w-[80%]">
+  return <Link href={categoryHref(name)} className="group flex h-full flex-col items-center justify-center rounded-xl bg-[#F3F4F3] px-1.5 pb-2 pt-2 text-center transition hover:bg-[#ECEFED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07834A]/50 sm:rounded-2xl sm:pb-4 sm:pt-4">
+    <span className="relative mx-auto block aspect-[5/4] w-[90%] sm:aspect-square sm:w-[80%]">
       {image
-        ? <Image src={image} alt="" fill sizes="(min-width: 1024px) 130px, (min-width: 640px) 25vw, 30vw" className="object-contain mix-blend-multiply transition duration-300 group-hover:scale-[1.04]" />
+        ? <Image src={image} alt="" fill sizes="(min-width: 1024px) 130px, (min-width: 640px) 25vw, 30vw" className="object-contain transition duration-300 group-hover:scale-[1.04]" />
         : <CategoryIcon name={name} label={label} />}
     </span>
-    <span className="mt-2 whitespace-nowrap text-[11.5px] font-medium leading-tight text-[#17211B] sm:mt-3 sm:text-[15px]">{label}</span>
+    <span className="mt-1 whitespace-nowrap text-[11.5px] font-medium leading-tight text-[#17211B] sm:mt-3 sm:text-[15px]">{label}</span>
   </Link>;
 }
 

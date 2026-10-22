@@ -8,7 +8,7 @@ const ICONS = [
 ];
 
 export function Benefits({ items }: { items: readonly { title: string; body: string }[] }) {
-  return <ul className="mt-8 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6 sm:px-4 lg:px-7">
+  return <ul className="mt-8 grid gap-3 sm:mt-14 sm:grid-cols-3 sm:gap-6 sm:px-4 lg:px-7">
     {items.map((item, i) => <li key={item.title} className="flex items-center gap-4 sm:gap-5">
       <span aria-hidden="true" className="grid size-[52px] shrink-0 place-items-center rounded-full bg-[#E2F2E8] text-[#07834A] sm:size-[72px]">{ICONS[i]}</span>
       <div>
