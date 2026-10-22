@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BadgeCheck, Boxes, Clock3, ListChecks, Store } from "lucide-react";
 import { EmptyState, formatDate, PageHeader, StatusBadge, tableWrap } from "@/components/admin/ui";
 import { requireAdminPage } from "@/lib/admin/auth";
+import { assertQueries } from "@/lib/admin/diagnostics";
 import type { MerchantRow } from "@/lib/admin/types";
 
 export default async function AdminDashboardPage() {
@@ -14,8 +15,7 @@ export default async function AdminDashboardPage() {
     admin.from("merchant_offers").select("id", { count: "exact", head: true }),
     admin.from("merchants").select("id,business_name,email,category,city,status,created_at").order("created_at", { ascending: false }).limit(6),
   ]);
-  const queryError = [totalMerchants, pending, approved, products, offers, recent].find((item) => item.error)?.error;
-  if (queryError) throw new Error(queryError.message);
+  assertQueries("overview", { totalMerchants, pending, approved, products, offers, recent });
   const stats = [
     { label: "Registered merchants", value: totalMerchants.count ?? 0, icon: Store },
     { label: "Pending approvals", value: pending.count ?? 0, icon: Clock3 },

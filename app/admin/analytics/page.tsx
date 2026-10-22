@@ -1,6 +1,7 @@
 import { Activity, MessageCircle, Search, SearchX } from "lucide-react";
 import { EmptyState, PageHeader, tableWrap } from "@/components/admin/ui";
 import { requireAdminPage } from "@/lib/admin/auth";
+import { assertQueries } from "@/lib/admin/diagnostics";
 
 export default async function AnalyticsPage() {
   const { admin } = await requireAdminPage(); const since = daysAgo(30);
@@ -11,7 +12,7 @@ export default async function AnalyticsPage() {
     admin.from("merchant_offers").select("merchant_id").gte("updated_at", since),
     admin.from("search_events").select("query,result_count,created_at").gte("created_at", since).order("created_at", { ascending: false }).limit(500),
   ]);
-  const error = [searches, noResults, clicks, activeMerchants, topQueries].find((x) => x.error)?.error; if (error) throw new Error(error.message);
+  assertQueries("analytics", { searches, noResults, clicks, activeMerchants, topQueries });
   const counts = new Map<string, { count: number; noResults: number }>(); for (const event of topQueries.data ?? []) { const key = String(event.query).trim().toLowerCase(); const current = counts.get(key) ?? { count: 0, noResults: 0 }; current.count += 1; if (event.result_count === 0) current.noResults += 1; counts.set(key, current); }
   const popular = [...counts.entries()].sort((a, b) => b[1].count - a[1].count).slice(0, 10); const activeCount = new Set((activeMerchants.data ?? []).map((o) => o.merchant_id)).size;
   const metrics = [{ label: "Product searches", value: searches.count ?? 0, icon: Search }, { label: "Searches without results", value: noResults.count ?? 0, icon: SearchX }, { label: "WhatsApp contact clicks", value: clicks.count ?? 0, icon: MessageCircle }, { label: "Active merchants", value: activeCount, icon: Activity }];

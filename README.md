@@ -6,7 +6,7 @@ A production-oriented local product search engine for North Cyprus, built with N
 
 1. Install dependencies: `npm install`
 2. Copy `.env.example` to `.env.local` and add your Supabase keys.
-3. Run every file in `supabase/migrations/` in order (`001`, `002`, `003`) in the Supabase SQL editor.
+3. Run every file in `supabase/migrations/` in order (`001` to `004`) in the Supabase SQL editor.
 4. In Supabase Auth, enable the Google provider, set the site URL, and add `http://localhost:3000/auth/callback` as a redirect URL.
 5. Start with `npm run dev`.
 
@@ -76,6 +76,12 @@ To make someone an administrator, have them sign in with Google once, then run o
 npm run admin:grant -- person@example.com            # grant
 npm run admin:grant -- person@example.com --revoke   # revoke
 ```
+
+### Troubleshooting "Admin data could not be loaded"
+
+Signed in as an administrator, open `/api/admin/health`. It checks each table and function the dashboard needs, reports which kind of key `SUPABASE_SERVICE_ROLE_KEY` holds (never its value), and suggests a fix for each failure. The same details are written to the server logs with the prefix `[admin]`.
+
+The most common cause is a Supabase project created after 30 May 2026: those projects no longer grant table access to `service_role` automatically, so the dashboard's queries fail with `permission denied` (`42501`) until `004_service_role_table_grants.sql` is applied.
 
 The script uses the service-role key through the Supabase Admin API. Never expose that key in browser code and never store authorization roles in user-editable `user_metadata`.
 
