@@ -3,8 +3,8 @@
 @theme {
   --animate-swing: swing 1s ease-in-out infinite alternate;
   @keyframes swing {
-    from { transform: rotate(-18deg); }
-    to { transform: rotate(18deg); }
+    from { transform: rotate(-15deg); }
+    to { transform: rotate(15deg); }
   }
 }
 
