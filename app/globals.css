@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@theme {
+  --animate-swing: swing 1s ease-in-out infinite alternate;
+  @keyframes swing {
+    from { transform: rotate(-18deg); }
+    to { transform: rotate(18deg); }
+  }
+}
+
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
