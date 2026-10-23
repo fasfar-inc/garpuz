@@ -1,20 +1,15 @@
 @import "tailwindcss";
 
-/* Loader watermelon: a 12-frame pixel sprite rolls in place while it hops over its shadow. */
+/* Loader watermelon: a 12-frame pixel sprite rolls in place while it hops. */
 @theme {
   --animate-melon-roll: melon-roll 0.9s steps(12) infinite;
   --animate-melon-hop: melon-hop 0.45s ease-in-out infinite alternate;
-  --animate-melon-shadow: melon-shadow 0.45s ease-in-out infinite alternate;
   @keyframes melon-roll {
     to { transform: translateX(-100%); }
   }
   @keyframes melon-hop {
     from { transform: translateY(0); }
     to { transform: translateY(-6px); }
-  }
-  @keyframes melon-shadow {
-    from { transform: scaleX(1); opacity: 0.18; }
-    to { transform: scaleX(0.75); opacity: 0.1; }
   }
 }
 
