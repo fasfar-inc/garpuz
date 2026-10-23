@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const supabaseOrigin = (() => {
   try { return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").origin; } catch { return ""; }
@@ -47,5 +46,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-initOpenNextCloudflareForDev();

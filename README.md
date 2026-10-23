@@ -18,40 +18,26 @@ A production-oriented local product search engine for North Cyprus, built with N
 
 The same checks plus a production build run in GitHub Actions on every push to `main` and every pull request (`.github/workflows/ci.yml`).
 
-## Cloudflare Workers deployment
+## Deployment (Vercel)
 
-GARPUZ uses Cloudflare's OpenNext adapter for its existing Next.js 16 App Router application.
+Production runs on Vercel from the `main` branch using the Next.js framework preset: build command `npm run build` (`next build`), no custom output directory. Every push to `main` deploys to production; pull requests get preview deployments.
 
-### Cloudflare Workers Builds
+Set these in Vercel → Project → Settings → Environment Variables, enabled for **Production** (and Preview if you use previews):
 
-Connect this GitHub repository to a Workers project and configure:
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://<project-ref>.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | the project's anon (legacy) or publishable (`sb_publishable_…`) key |
+| `SUPABASE_SERVICE_ROLE_KEY` | the same project's service_role (legacy) or secret (`sb_secret_…`) key; mark it Sensitive |
+| `NEXT_PUBLIC_SITE_URL` | the canonical https origin, e.g. `https://garpuz.vercel.app` or the custom domain |
 
-- Build command: `npx @opennextjs/cloudflare build`
-- Deploy command: `npx @opennextjs/cloudflare deploy`
-- Production branch: `main`
+Next.js inlines `NEXT_PUBLIC_` values at build time, so **redeploy after changing any of them**. Signed in as an administrator, `/api/admin/health` reports which deployment and commit is running and whether these variables are valid (never their values).
 
-Add these values in both **Build variables and secrets** and the Worker's **Runtime variables and secrets**:
+Session refresh runs in `proxy.ts` (Next.js 16's replacement for middleware).
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `NEXT_PUBLIC_SITE_URL` (set this to the final HTTPS production origin)
-- `SUPABASE_SERVICE_ROLE_KEY` as an encrypted secret
+### Rate limiting
 
-The public variables must be available during the build because Next.js inlines `NEXT_PUBLIC_` values. Runtime values are also required by server-rendered pages and route handlers. Wrangler's `keep_vars` setting preserves variables managed in the Cloudflare dashboard during later deployments.
-
-### Commands
-
-- `npm run build` — standard Next.js production build
-- `npm run build:cloudflare` — create the deployable Worker in `.open-next`
-- `npm run preview:cloudflare` — build and preview in the Workers runtime
-- `npm run deploy` — build and deploy immediately
-- `npm run cf-typegen` — regenerate Cloudflare binding types after changing `wrangler.jsonc`
-
-Session refresh runs in `proxy.ts` (Next.js 16's replacement for middleware). OpenNext marks Node.js proxy support on Workers as experimental; it has been verified with `npm run preview:cloudflare`, but re-check sign-in after upgrading `@opennextjs/cloudflare`.
-
-`wrangler.jsonc` declares two [rate limiting bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/): `SEARCH_RATE_LIMITER` (60 searches per minute per IP; the search API returns 429 and the search page stops logging analytics beyond it) and `CONTACT_RATE_LIMITER` (20 WhatsApp click events per minute per IP). Without the bindings, for example under `next start`, requests are allowed.
-
-For local Workers previews, copy `.dev.vars.example` to `.dev.vars` and replace the placeholders. Never commit `.dev.vars` or production secrets.
+`lib/rate-limit.ts` allows 60 searches and 20 WhatsApp click events per minute per IP; beyond that the search API returns 429 and searches and clicks stop being recorded in analytics. The limit is kept in memory per server instance, which stops floods from one client. For a hard global limit, add a Vercel Firewall rule (Project → Firewall → Configure → Rate Limit) on `/search` and `/api/` paths.
 
 Public search deliberately returns zero results until approved merchants and real offers are present. Never seed production with fictional offers.
 
