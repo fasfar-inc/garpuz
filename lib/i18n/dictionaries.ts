@@ -17,7 +17,7 @@ const en = {
     title: "Garpuz — Find it locally",
     description: "Search products from trusted local shops across North Cyprus and compare prices.",
   },
-  nav: { addShop: "Add your shop", findProduct: "Find a product", about: "About Garpuz", aboutShort: "About", privacy: "Privacy", terms: "Terms", contact: "Contact", home: "Garpuz home", language: "Language" },
+  nav: { addShop: "Add your shop", findProduct: "Find a product", about: "About Garpuz", aboutShort: "About", privacy: "Privacy", terms: "Terms", contact: "Contact", home: "Garpuz home", language: "Language", credit: "Designed and built by" },
   home: {
     tagline: "Find it locally. Compare prices.",
     popularSearches: "Popular searches",
@@ -248,7 +248,7 @@ const tr: Dictionary = {
     title: "Garpuz — Yerelde bul",
     description: "Kuzey Kıbrıs’taki güvenilir yerel mağazaların ürünlerini arayın ve fiyatları karşılaştırın.",
   },
-  nav: { addShop: "Mağazanı ekle", findProduct: "Ürün bul", about: "Garpuz hakkında", aboutShort: "Hakkında", privacy: "Gizlilik", terms: "Koşullar", contact: "İletişim", home: "Garpuz ana sayfa", language: "Dil" },
+  nav: { addShop: "Mağazanı ekle", findProduct: "Ürün bul", about: "Garpuz hakkında", aboutShort: "Hakkında", privacy: "Gizlilik", terms: "Koşullar", contact: "İletişim", home: "Garpuz ana sayfa", language: "Dil", credit: "Tasarım ve geliştirme:" },
   home: {
     tagline: "Yerelde bul. Fiyatları karşılaştır.",
     popularSearches: "Popüler aramalar",
