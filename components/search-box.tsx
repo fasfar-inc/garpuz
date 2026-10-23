@@ -9,7 +9,7 @@ type Labels = { placeholder: string; label: string; submit: string; searching: s
 export function SearchBox({ initialQuery = "", compact = false, labels }: { initialQuery?: string; compact?: boolean; labels: Labels }) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
-  // Keeps the spinning watermelon on screen until the results page has rendered.
+  // Keeps the swinging watermelon on screen until the results page has rendered.
   const [searching, startSearch] = useTransition();
   function submit(event: FormEvent) {
     event.preventDefault();
