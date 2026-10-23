@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { adminConfigurationProblem, getVerifiedAdmin } from "@/lib/admin/auth";
-import { describeKey, explainFailure } from "@/lib/admin/diagnostics";
+import { describeKey, environmentProblems, explainFailure } from "@/lib/admin/diagnostics";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -36,10 +36,14 @@ export async function GET() {
   if (supabase) record("003: search_public_offer_facets", await supabase.rpc("search_public_offer_facets", { search_query: "health" }));
 
   const problem = adminConfigurationProblem();
+  const environment = environmentProblems();
   const body = {
-    ok: !problem && checks.length > 0 && checks.every((check) => check.ok),
+    ok: !problem && environment.length === 0 && checks.length > 0 && checks.every((check) => check.ok),
+    // Lets you confirm which build is answering: Vercel environment and commit, no secrets.
+    deployment: { environment: process.env.VERCEL_ENV ?? "local", commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null, siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? null },
     configuration: {
       problem,
+      environment,
       supabaseHost: (() => { try { return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").host; } catch { return null; } })(),
       serviceKey: describeKey(process.env.SUPABASE_SERVICE_ROLE_KEY),
       anonKey: describeKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),

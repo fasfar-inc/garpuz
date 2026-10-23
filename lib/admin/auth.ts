@@ -2,7 +2,7 @@ import "server-only";
 
 import type { User } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
-import { describeKey } from "@/lib/admin/diagnostics";
+import { environmentProblems } from "@/lib/admin/diagnostics";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -23,14 +23,8 @@ export async function getVerifiedAdmin() {
  * names and the kind of key are reported, never their values.
  */
 export function adminConfigurationProblem() {
-  const missing = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"].filter((name) => !process.env[name]);
-  if (missing.length) return `Missing environment variables: ${missing.join(", ")}`;
-  const kind = describeKey(process.env.SUPABASE_SERVICE_ROLE_KEY);
-  // A public key here makes every admin query run as anon and fail with "permission denied".
-  if (kind === "publishable" || kind === "legacy-jwt:anon" || kind === "legacy-jwt:authenticated") {
-    return `SUPABASE_SERVICE_ROLE_KEY holds a public key (${kind}); it must be the service_role or secret key`;
-  }
-  return null;
+  const blocking = environmentProblems().filter((p) => p.blocking);
+  return blocking.length ? blocking.map((p) => `${p.variable} ${p.problem}`).join("; ") : null;
 }
 
 export async function requireAdminPage() {

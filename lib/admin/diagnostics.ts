@@ -23,6 +23,78 @@ export function describeKey(key: string | undefined) {
   }
 }
 
+/** The Supabase project a legacy JWT key belongs to (its `ref` claim); null for other key kinds. */
+export function keyProjectRef(key: string | undefined) {
+  if (!key || key.startsWith("sb_")) return null;
+  try {
+    const ref = JSON.parse(Buffer.from(key.split(".")[1] ?? "", "base64url").toString("utf8")).ref;
+    return typeof ref === "string" ? ref : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The project ref in a hosted Supabase URL (https://<ref>.supabase.co); null for custom domains. */
+export function urlProjectRef(url: string | undefined) {
+  try {
+    const host = new URL(url ?? "").host;
+    return host.endsWith(".supabase.co") ? host.split(".")[0] : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The variables as the running build sees them. Direct references matter: Next.js inlines
+ * NEXT_PUBLIC_* values at build time, and those inlined values are what the site uses, so a
+ * dynamic `process.env[name]` lookup could report a runtime value the build never saw.
+ */
+function deploymentEnv(): Record<string, string | undefined> {
+  return {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    VERCEL_ENV: process.env.VERCEL_ENV,
+  };
+}
+
+/**
+ * Checks the deployment's Supabase and site variables. Reports variable names and kinds of
+ * key only, never values. `blocking` problems stop the admin dashboard from running.
+ */
+export function environmentProblems(env: Record<string, string | undefined> = deploymentEnv()) {
+  const problems: { variable: string; problem: string; blocking: boolean }[] = [];
+  for (const variable of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"]) {
+    if (!env[variable]) problems.push({ variable, problem: "missing", blocking: true });
+  }
+  const serviceKind = describeKey(env.SUPABASE_SERVICE_ROLE_KEY);
+  if (serviceKind === "publishable" || serviceKind === "legacy-jwt:anon" || serviceKind === "legacy-jwt:authenticated") {
+    problems.push({ variable: "SUPABASE_SERVICE_ROLE_KEY", problem: `holds a public key (${serviceKind}); use the service_role or secret key`, blocking: true });
+  }
+  // This variable is shipped to every browser, so a server secret here is a leak.
+  const anonKind = describeKey(env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  if (anonKind === "secret" || anonKind === "legacy-jwt:service_role") {
+    problems.push({ variable: "NEXT_PUBLIC_SUPABASE_ANON_KEY", problem: `holds a server secret (${anonKind}); replace it with the anon/publishable key and rotate the secret`, blocking: true });
+  }
+  const urlRef = urlProjectRef(env.NEXT_PUBLIC_SUPABASE_URL);
+  for (const variable of ["NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"]) {
+    const ref = keyProjectRef(env[variable]);
+    if (urlRef && ref && ref !== urlRef) problems.push({ variable, problem: "belongs to a different Supabase project than NEXT_PUBLIC_SUPABASE_URL", blocking: true });
+  }
+  const site = env.NEXT_PUBLIC_SITE_URL;
+  if (!site) problems.push({ variable: "NEXT_PUBLIC_SITE_URL", problem: "missing; canonical links, sitemap and social previews fall back to localhost", blocking: false });
+  else if (env.VERCEL_ENV === "production") {
+    try {
+      const url = new URL(site);
+      if (url.protocol !== "https:" || ["localhost", "127.0.0.1"].includes(url.hostname)) problems.push({ variable: "NEXT_PUBLIC_SITE_URL", problem: "must be the https production origin", blocking: false });
+    } catch {
+      problems.push({ variable: "NEXT_PUBLIC_SITE_URL", problem: "is not a valid URL", blocking: false });
+    }
+  }
+  return problems;
+}
+
 /** Suggests the most likely fix for a failed admin query. */
 export function explainFailure({ error, status }: QueryResult) {
   const code = error?.code ?? "";
@@ -52,7 +124,6 @@ export function assertQueries(scope: string, results: Record<string, QueryResult
       status: result.status,
       code: result.error?.code || null,
       message: result.error?.message || result.statusText || null,
-      details: result.error?.details ?? null,
       hint: result.error?.hint ?? null,
       fix: explainFailure(result),
     });
