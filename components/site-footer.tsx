@@ -24,6 +24,9 @@ export async function SiteFooter() {
         <FooterLanguage locale={locale} label={t.nav.language} />
       </div>
     </div>
+    <p className="mx-auto mt-4 max-w-[1120px] text-center text-[12px] text-[#4D5A52]/80 sm:text-[13px]">
+      {t.nav.credit} <span className="font-semibold tracking-wide text-[#4D5A52]">FASFAR</span>
+    </p>
   </footer>;
 }
 
