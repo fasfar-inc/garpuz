@@ -15,9 +15,10 @@ type Labels = Dictionary["dashboard"]["product"];
  * Product name, price in lira and an optional photo. Submitting by hand rather than through
  * `<form action>` keeps what was typed, including the chosen photo, when there is an error.
  */
-export function ProductForm({ labels, initial }: {
+export function ProductForm({ labels, categories, initial }: {
   labels: Labels;
-  initial?: { id: string; name: string; price: string; image: string | null };
+  categories: { value: string; label: string }[];
+  initial?: { id: string; name: string; category: string; price: string; image: string | null };
 }) {
   const [state, dispatch, pending] = useActionState(saveProduct, {});
   const [, startTransition] = useTransition();
@@ -53,10 +54,18 @@ export function ProductForm({ labels, initial }: {
       {errors.name ? <FieldError id="name-error" message={message(errors.name === "invalid" ? "name" : errors.name)} /> : <span id="name-help" className="mt-1.5 block text-xs font-normal text-[#6B776F]">{labels.nameHelp}</span>}
     </label>
 
+    <label className={labelClass}>{labels.category}
+      <select name="category" required defaultValue={initial?.category ?? ""} className={cn(inputClass, "mt-2")} {...field("category")}>
+        <option value="" disabled>{labels.chooseCategory}</option>
+        {categories.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+      </select>
+      <FieldError id="category-error" message={errors.category ? message("category") : undefined} />
+    </label>
+
     <label className={labelClass}>{labels.price}
       <span className="relative mt-2 block">
         <span aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[17px] font-bold text-[#07834A]">₺</span>
-        <input name="price" required inputMode="decimal" autoComplete="off" maxLength={20} defaultValue={initial?.price} placeholder="0" className={cn(inputClass, "pl-9 text-[17px] font-semibold")} {...field("price")} />
+        <input name="price" required inputMode="decimal" autoComplete="off" maxLength={20} defaultValue={initial?.price} placeholder="0" className={cn(inputClass, "pl-9 text-[17px] font-semibold!")} {...field("price")} />
       </span>
       <FieldError id="price-error" message={errors.price ? message("price") : undefined} />
     </label>

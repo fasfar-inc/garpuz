@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { productSchema, shopSchema } from "@/lib/validation";
+import { productCategory, productSchema, shopSchema } from "@/lib/validation";
 
 const firstIssue = (result: { error?: { issues: { path: PropertyKey[] }[] } }) => result.error?.issues[0]?.path[0];
 
@@ -17,13 +17,25 @@ describe("shopSchema", () => {
 
 describe("productSchema", () => {
   it("tidies the name and reads lira prices written either way", () => {
-    expect(productSchema.parse({ name: "  Olive   oil 1L ", price: "1.250,50" })).toEqual({ id: null, name: "Olive oil 1L", price: 1250.5 });
-    expect(productSchema.parse({ id: "8f14e45f-ceea-4e7d-a9b2-1c3d4e5f6a7b", name: "iPhone 15 128GB", price: "₺45999.9" }).price).toBe(45999.9);
+    expect(productSchema.parse({ name: "  Olive   oil 1L ", category: "Groceries", price: "1.250,50" })).toEqual({ id: null, name: "Olive oil 1L", category: "Groceries", price: 1250.5 });
+    expect(productSchema.parse({ id: "8f14e45f-ceea-4e7d-a9b2-1c3d4e5f6a7b", name: "iPhone 15 128GB", category: "Mobile Phones", price: "₺45999.9" }).price).toBe(45999.9);
   });
-  it("requires a name and a price above zero", () => {
-    expect(firstIssue(productSchema.safeParse({ name: "A", price: "10" }))).toBe("name");
-    expect(firstIssue(productSchema.safeParse({ name: "Kettle", price: "0" }))).toBe("price");
-    expect(firstIssue(productSchema.safeParse({ name: "Kettle", price: "ten" }))).toBe("price");
-    expect(firstIssue(productSchema.safeParse({ name: "Kettle", price: "10", id: "nope" }))).toBe("id");
+  it("requires a name, a listed category and a price above zero", () => {
+    const kettle = { name: "Kettle", category: "Home Appliances", price: "10" };
+    expect(firstIssue(productSchema.safeParse({ ...kettle, name: "A" }))).toBe("name");
+    expect(firstIssue(productSchema.safeParse({ ...kettle, category: "" }))).toBe("category");
+    expect(firstIssue(productSchema.safeParse({ ...kettle, category: "Spaceships" }))).toBe("category");
+    expect(firstIssue(productSchema.safeParse({ ...kettle, price: "0" }))).toBe("price");
+    expect(firstIssue(productSchema.safeParse({ ...kettle, price: "ten" }))).toBe("price");
+    expect(firstIssue(productSchema.safeParse({ ...kettle, id: "nope" }))).toBe("id");
+  });
+});
+
+describe("productCategory", () => {
+  it("maps stored categories to the listed ones case-insensitively", () => {
+    expect(productCategory("mobile phones")).toBe("Mobile Phones");
+    expect(productCategory(" OTHER ")).toBe("Other");
+    expect(productCategory("Phones")).toBe("");
+    expect(productCategory(null)).toBe("");
   });
 });

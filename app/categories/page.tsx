@@ -37,7 +37,7 @@ export default async function CategoriesPage() {
       <p className="mt-1 text-[15px] text-[#6B776F]">{t.categoriesPage.body}</p>
       <ul className="mt-6 grid grid-cols-3 gap-2 sm:gap-2.5 lg:grid-cols-6">
         {FEATURED_CATEGORIES.map((category) => <li key={category.name}><CategoryCard name={category.name} label={t.productCategories[category.name] ?? category.name} image={category.image} /></li>)}
-        {others.map((name) => <li key={name}><CategoryCard name={name} label={name} /></li>)}
+        {others.map((name) => <li key={name}><CategoryCard name={name} label={t.productCategories[name] ?? name} /></li>)}
       </ul>
     </div>
     <SiteFooter />
