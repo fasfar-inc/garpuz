@@ -8,7 +8,7 @@ import { getSignedInShop, requireMerchant } from "@/lib/merchant";
 import { productTitle, textKey } from "@/lib/product-text";
 import { allowRequest } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { productSchema, shopSchema } from "@/lib/validation";
+import { productCategory, productSchema, shopSchema } from "@/lib/validation";
 
 /** Field name → message key; `form` is for problems that belong to no single field. */
 export type FormState = { errors?: Record<string, string> };
@@ -83,7 +83,7 @@ export async function saveProduct(_previous: FormState, formData: FormData): Pro
   if (image === null) return { errors: { photo: "photoInvalid" } };
 
   const { supabase, merchant } = await requireMerchant();
-  const { id, name, price } = parsed.data;
+  const { id, name, category, price } = parsed.data;
   let offer: OwnOffer | null = null;
   if (id) {
     const { data, error } = await supabase.from("merchant_offers").select("id,product_id,canonical_products(id,name,brand,model,category,image_url)").eq("id", id).eq("merchant_id", merchant.id).maybeSingle();
@@ -96,18 +96,25 @@ export async function saveProduct(_previous: FormState, formData: FormData): Pro
   try {
     // Keep the current catalog product unless the shop renamed it.
     if (!product || textKey(productTitle(product)) !== textKey(name)) product = await matchCatalogProduct(supabase, name);
-    // A shop's photo only fills in a catalog product that has none, so it is not stored otherwise.
+    // A shop's photo and category only fill in what a catalog product lacks; they never replace it.
     const newPhoto = product?.image_url ? undefined : image;
-    // Photos and new catalog products are written with the service role; shops cannot write the catalog.
-    const needsAdmin = Boolean(newPhoto) || !product;
+    const fillCategory = product !== null && productCategory(product.category) === "Other" && category !== "Other";
+    // Catalog writes use the service role; shops cannot write the catalog.
+    const needsAdmin = Boolean(newPhoto) || !product || fillCategory;
     if (needsAdmin && !(await allowRequest("CATALOG_RATE_LIMITER", merchant.id))) return { errors: { form: "tooMany" } };
     const admin = needsAdmin ? createAdminClient() : null;
     if (needsAdmin && !admin) return { errors: { form: "failed" } };
     const imageUrl = newPhoto && admin ? await uploadProductImage(admin, merchant.id, newPhoto) : null;
-    if (!product) product = await createCatalogProduct(admin!, { brand: "", name, model: null, category: merchant.category || "Other" }, imageUrl);
-    else if (imageUrl) {
-      const { error } = await admin!.from("canonical_products").update({ image_url: imageUrl }).eq("id", product.id).is("image_url", null);
-      if (error) throw new Error(error.message);
+    if (!product) product = await createCatalogProduct(admin!, { brand: "", name, model: null, category }, imageUrl);
+    else {
+      if (imageUrl) {
+        const { error } = await admin!.from("canonical_products").update({ image_url: imageUrl }).eq("id", product.id).is("image_url", null);
+        if (error) throw new Error(error.message);
+      }
+      if (fillCategory) {
+        const { error } = await admin!.from("canonical_products").update({ category }).eq("id", product.id).eq("category", product.category);
+        if (error) throw new Error(error.message);
+      }
     }
   } catch (error) {
     console.error("Product catalog step failed", error instanceof Error ? error.message : error);
