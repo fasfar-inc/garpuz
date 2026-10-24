@@ -58,14 +58,15 @@ export async function searchOffers(params: {
 const emptyFilters: SearchFilters = { cities: [], brands: [], conditions: [], availabilities: [] };
 
 function normalizeFilters(value: SearchFilters): SearchFilters {
-  return { cities: value.cities ?? [], brands: value.brands ?? [], conditions: value.conditions ?? [], availabilities: value.availabilities ?? [] };
+  // Products shops add themselves have no brand; a blank brand is not a filter option.
+  return { cities: value.cities ?? [], brands: (value.brands ?? []).filter(Boolean), conditions: value.conditions ?? [], availabilities: value.availabilities ?? [] };
 }
 
 function deriveFilters(offers: SearchOffer[]): SearchFilters {
   const unique = (values: string[]) => [...new Set(values)].sort();
   return {
     cities: unique(offers.map((o) => o.city)),
-    brands: unique(offers.map((o) => o.brand)),
+    brands: unique(offers.map((o) => o.brand).filter(Boolean)),
     conditions: unique(offers.map((o) => o.condition)),
     availabilities: unique(offers.map((o) => o.availability)),
   };

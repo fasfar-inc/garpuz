@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { catalogKey } from "@/lib/catalog-import";
+import { catalogKey, productTitle, textKey } from "@/lib/product-text";
 
 export type CatalogMatch = { id: string; name: string; brand: string; model: string | null; category: string; image_url: string | null };
 export type NewCatalogProduct = { brand: string; name: string; model: string | null; category: string };
@@ -14,7 +14,7 @@ export function foldSearchText(value: string) {
   return folded.replace(/[^\p{L}\p{N}]+/gu, "");
 }
 
-/** Catalog products containing every word of `query`, in any order, for the shop's product picker. */
+/** Catalog products containing every word of `query`, in any order. */
 export async function searchCatalog(supabase: SupabaseClient, query: string, limit = 8) {
   const words = query.split(/\s+/).map(foldSearchText).filter(Boolean).slice(0, 4);
   if (!words.length) return [];
@@ -39,6 +39,19 @@ export async function findCatalogProduct(supabase: SupabaseClient, product: NewC
   if (error) throw new Error(error.message);
   const key = catalogKey(product.brand, product.name, product.model);
   return ((data ?? []) as CatalogMatch[]).find((row) => catalogKey(row.brand, row.name, row.model) === key) ?? null;
+}
+
+/**
+ * The catalog product a shop means by `title`, if there is one: its full title ("Apple iPhone 15 128GB")
+ * or its title without the brand ("iPhone 15 128GB"), ignoring case and spacing. Shops type one product
+ * name, so this keeps listings for the same product together for customers comparing prices.
+ */
+export async function matchCatalogProduct(supabase: SupabaseClient, title: string) {
+  const key = textKey(title);
+  const candidates = await searchCatalog(supabase, title, 50);
+  return candidates.find((row) => textKey(productTitle(row)) === key)
+    ?? candidates.find((row) => textKey(productTitle({ brand: "", name: row.name, model: row.model })) === key)
+    ?? null;
 }
 
 /**

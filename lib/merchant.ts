@@ -13,14 +13,20 @@ export type MerchantProfile = {
 
 const MERCHANT_COLUMNS = "id,business_name,representative_name,email,phone,whatsapp,category,city,address,website,registration_number,verification_document_path,status";
 
-/** Loads the signed-in user's shop, redirecting to sign-in or shop setup when either is missing. */
-export async function requireMerchant() {
+/** The signed-in user and their shop, if any. Null when nobody is signed in or Supabase is not configured. */
+export async function getSignedInShop() {
   const supabase = await createClient();
-  if (!supabase) redirect("/business/register");
+  if (!supabase) return null;
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/business/register");
+  if (!user) return null;
   const { data, error } = await supabase.from("merchants").select(MERCHANT_COLUMNS).eq("user_id", user.id).maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data) redirect("/business/setup");
-  return { supabase, user, merchant: data as MerchantProfile };
+  return { supabase, user, merchant: data as MerchantProfile | null };
+}
+
+/** Loads the signed-in user's shop, sending anyone without one to sign in or create a shop. */
+export async function requireMerchant() {
+  const session = await getSignedInShop();
+  if (!session?.merchant) redirect("/business/register");
+  return { ...session, merchant: session.merchant };
 }

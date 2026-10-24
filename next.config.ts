@@ -26,6 +26,14 @@ const nextConfig: NextConfig = {
     ],
   },
   poweredByHeader: false,
+  // Screens from the earlier merchant dashboard, now folded into My shop.
+  async redirects() {
+    return [
+      { source: "/business/setup", destination: "/business/register", permanent: false },
+      { source: "/dashboard/profile", destination: "/dashboard/edit", permanent: false },
+      { source: "/dashboard/:page(products|import|settings)", destination: "/dashboard", permanent: false },
+    ];
+  },
   experimental: {
     // Verification documents can be up to 5 MB.
     serverActions: { bodySizeLimit: "6mb" },
