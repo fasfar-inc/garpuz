@@ -47,10 +47,10 @@ Shops sign in with Google at `/business/register`, enter a shop name and categor
 
 - complete their **shop profile** (WhatsApp number and city are required: listings without a WhatsApp number never appear in search),
 - upload a **verification document** (PDF, JPG or PNG up to 5 MB) to the private `business-verification` bucket,
-- add **listings** by searching the canonical catalog, then edit prices and stock, hide or delete them,
-- **import** many listings from a CSV file (`public/garpuz-catalog-template.csv` shows the format). Rows are matched to catalog products by brand, name and model; unmatched rows are reported by line.
+- add **listings** from `/dashboard/products`: type what they sell, pick the matching catalog product, or describe a new one (brand, name, model, category and an optional photo). Then edit price, currency and stock, hide or delete listings,
+- **import** many listings from a CSV file (`public/garpuz-catalog-template.csv` shows the format). Rows are matched to catalog products by brand, name and model; products not yet in the catalog are added (an optional `category` column files them, otherwise the shop's category is used), and invalid rows are reported by line.
 
-Merchants cannot create catalog products. Administrators add them at `/admin/products`.
+Shops have no write access to `canonical_products`. New products a shop describes are validated and added by server code with the service role, after matching them against the catalog (case- and spacing-insensitive) so the same product is not created twice; administrators can edit them at `/admin/products`. Product photos (JPG, PNG or WebP up to 5 MB, checked by file signature) go to the public `product-images` storage bucket, which the app creates on first upload. A shop's photo only fills in a product that has none.
 
 ## Admin dashboard
 
@@ -81,7 +81,7 @@ The public site and merchant dashboard are available in English and Turkish. The
 
 - Public results come only from active offers belonging to approved merchants.
 - Business verification files are stored in a private bucket.
-- Shop setup, profile changes, listings and imports are validated server-side with Zod. The service role is used only for the verification upload, analytics and admin actions, always after the caller has been verified.
+- Shop setup, profile changes, listings and imports are validated server-side with Zod. The service role is used only for the verification upload, adding shop-described products and photos to the catalog, analytics and admin actions, always after the caller has been verified.
 - Merchant dashboard reads are restricted through row-level security. Owners can only write their own profile fields (column-level grants); status, ownership, email and the verification document path are written only by trusted server code, and the registration number locks once a shop has been reviewed.
 - Every response carries a Content-Security-Policy, HSTS, `X-Frame-Options: DENY` and related headers (`next.config.ts`).
 - Visitors never need an account to search. Shop owners use Google sign-in, then provide only a shop name and category.

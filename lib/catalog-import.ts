@@ -1,15 +1,17 @@
-import { AVAILABILITIES, CONDITIONS, CURRENCIES } from "@/lib/validation";
+import { AVAILABILITIES, CONDITIONS, CURRENCIES, PRODUCT_CATEGORIES } from "@/lib/validation";
 
 export const MAX_IMPORT_ROWS = 1000;
 
 export type ImportReason =
   | "missing_columns" | "too_many_rows" | "missing_fields" | "invalid_price" | "invalid_currency"
-  | "invalid_condition" | "invalid_availability" | "no_catalog_match" | "duplicate_row";
+  | "invalid_condition" | "invalid_availability" | "invalid_category" | "no_catalog_match" | "duplicate_row";
 
 export type ImportRow = {
   line: number; brand: string; name: string; model: string | null; price: number;
   currency: (typeof CURRENCIES)[number]; condition: (typeof CONDITIONS)[number];
   availability: (typeof AVAILABILITIES)[number]; sku: string | null;
+  /** Used only when the row's product is new to the catalog; null when the file leaves it blank. */
+  category: (typeof PRODUCT_CATEGORIES)[number] | null;
 };
 
 export type ImportProblem = { line: number; reason: ImportReason };
@@ -41,7 +43,9 @@ export function parseCsv(text: string): string[][] {
 }
 
 export function catalogKey(brand: string, name: string, model: string | null) {
-  const clean = (value: string | null) => (value ?? "").normalize("NFC").toLocaleLowerCase("tr").replace(/\s+/g, " ").trim();
+  // Turkish lower-casing maps "I" to "ı" where the database's lower() gives "i"; folding both keeps
+  // this key in line with the catalog's case-insensitive unique index.
+  const clean = (value: string | null) => (value ?? "").normalize("NFC").toLocaleLowerCase("tr").replace(/ı/g, "i").replace(/\s+/g, " ").trim();
   return `${clean(brand)}|${clean(name)}|${clean(model)}`;
 }
 
@@ -78,8 +82,8 @@ export function parseImport(text: string): { rows: ImportRow[]; problems: Import
   table.slice(1).forEach((cells, index) => {
     const line = index + 2;
     const get = (name: string) => (column(name) === -1 ? "" : (cells[column(name)] ?? "").trim());
-    const brand = get("brand"); const name = get("name");
-    if (!brand || !name) return problems.push({ line, reason: "missing_fields" });
+    const brand = get("brand").replace(/\s+/g, " "); const name = get("name").replace(/\s+/g, " ");
+    if (!brand || name.length < 2) return problems.push({ line, reason: "missing_fields" });
     const price = parsePrice(get("price"));
     if (price === null || price > 99_999_999) return problems.push({ line, reason: "invalid_price" });
     const currency = (get("currency") || "TRY").toUpperCase();
@@ -88,10 +92,13 @@ export function parseImport(text: string): { rows: ImportRow[]; problems: Import
     if (!(CONDITIONS as readonly string[]).includes(condition)) return problems.push({ line, reason: "invalid_condition" });
     const availability = (get("availability") || "in_stock").toLowerCase().replace(/[\s-]+/g, "_");
     if (!(AVAILABILITIES as readonly string[]).includes(availability)) return problems.push({ line, reason: "invalid_availability" });
+    const categoryText = get("category").toLocaleLowerCase("en");
+    const category = categoryText ? PRODUCT_CATEGORIES.find((option) => option.toLocaleLowerCase("en") === categoryText) : null;
+    if (category === undefined) return problems.push({ line, reason: "invalid_category" });
     rows.push({
-      line, brand, name, model: get("model") || null, price: Math.round(price * 100) / 100,
+      line, brand: brand.slice(0, 100), name: name.slice(0, 160), model: get("model").replace(/\s+/g, " ").slice(0, 120) || null, price: Math.round(price * 100) / 100,
       currency: currency as ImportRow["currency"], condition: condition as ImportRow["condition"],
-      availability: availability as ImportRow["availability"], sku: get("sku").slice(0, 80) || null,
+      availability: availability as ImportRow["availability"], sku: get("sku").slice(0, 80) || null, category,
     });
   });
   return { rows, problems };
