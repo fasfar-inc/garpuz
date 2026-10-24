@@ -1,9 +1,9 @@
 import "server-only";
 
-export type RateLimiterName = "SEARCH_RATE_LIMITER" | "CONTACT_RATE_LIMITER";
+export type RateLimiterName = "SEARCH_RATE_LIMITER" | "CONTACT_RATE_LIMITER" | "CATALOG_RATE_LIMITER";
 
-/** Requests allowed per client IP per minute. */
-const LIMITS: Record<RateLimiterName, number> = { SEARCH_RATE_LIMITER: 60, CONTACT_RATE_LIMITER: 20 };
+/** Requests allowed per key (client IP, or shop for catalog writes) per minute. */
+const LIMITS: Record<RateLimiterName, number> = { SEARCH_RATE_LIMITER: 60, CONTACT_RATE_LIMITER: 20, CATALOG_RATE_LIMITER: 20 };
 const WINDOW_MS = 60_000;
 const MAX_TRACKED_CLIENTS = 10_000;
 

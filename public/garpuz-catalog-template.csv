@@ -1,2 +1,2 @@
-brand,name,model,price,currency,condition,availability,sku
-Apple,iPhone 15,A3090,45999.90,TRY,new,in_stock,IP15-128-BLK
+brand,name,model,category,price,currency,condition,availability,sku
+Apple,iPhone 15,128GB Black,Mobile Phones,45999.90,TRY,new,in_stock,IP15-128-BLK
