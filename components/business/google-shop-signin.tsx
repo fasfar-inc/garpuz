@@ -5,14 +5,14 @@ import { createClient } from "@/lib/supabase/client";
 
 type Labels = { continue: string; connecting: string; unavailable: string };
 
-export function GoogleShopSignIn({ next = "/business/setup", label, labels }: { next?: string; label?: string; labels: Labels }) {
+export function GoogleShopSignIn({ next = "/business/register", label, labels }: { next?: string; label?: string; labels: Labels }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   async function connect() {
     const supabase = createClient();
     if (!supabase) { setError(labels.unavailable); return; }
     setLoading(true);
-    const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/business/setup";
+    const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/business/register";
     const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}` } });
     if (error) { setError(error.message); setLoading(false); }
   }

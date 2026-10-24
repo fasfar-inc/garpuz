@@ -22,7 +22,22 @@ export async function proxy(request: NextRequest) {
   });
 
   // getUser() validates the token with Supabase Auth and triggers a refresh when needed.
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Send shop owners straight to the right screen: "Add shop" opens My shop when the user already
+  // has one, and My shop asks for sign-in or a new shop otherwise. Pages repeat these checks; doing it
+  // here redirects before the loading screen streams. Only page loads (GET) are redirected, never
+  // Server Action posts.
+  const path = request.nextUrl.pathname;
+  if (request.method === "GET" && (path === "/business/register" || path === "/dashboard" || path.startsWith("/dashboard/"))) {
+    const { data: shop } = user ? await supabase.from("merchants").select("id").eq("user_id", user.id).maybeSingle() : { data: null };
+    const target = path === "/business/register" ? (shop ? "/dashboard" : null) : (shop ? null : "/business/register");
+    if (target) {
+      const redirect = NextResponse.redirect(new URL(target, request.url));
+      response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+      return redirect;
+    }
+  }
   return response;
 }
 

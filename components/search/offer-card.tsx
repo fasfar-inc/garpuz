@@ -18,7 +18,7 @@ export function OfferCard({ offer, t }: { offer: SearchOffer; t: Dictionary }) {
     <div className="min-w-0">
       <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-[#EDF7F1] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[#07834A]">{valueLabel(t, offer.condition)}</span><span className={`text-[11px] font-medium ${offer.availability === "in_stock" ? "text-[#07834A]" : "text-[#8A5D18]"}`}>● {valueLabel(t, offer.availability)}</span></div>
       <h2 className="mt-2 line-clamp-2 text-[15px] font-bold leading-snug text-[#17211B] sm:text-lg">{offer.product_name}</h2>
-      <p className="mt-1 text-xs text-[#6D7971] sm:text-sm">{offer.brand}{offer.model ? ` · ${offer.model}` : ""}</p>
+      {(offer.brand || offer.model) && <p className="mt-1 text-xs text-[#6D7971] sm:text-sm">{[offer.brand, offer.model].filter(Boolean).join(" · ")}</p>}
       {offer.specifications && Object.keys(offer.specifications).length > 0 && <p className="mt-1 truncate text-xs text-[#7C8880]">{Object.entries(offer.specifications).map(([k, v]) => `${k}: ${v}`).join(" · ")}</p>}
       <div className="mt-3 flex items-center gap-1 text-xs text-[#5E6C63]"><MapPin className="size-3.5 text-[#07834A]" /><span className="font-semibold text-[#344138]">{offer.merchant_name}</span>{offer.city && <span>· {offer.city}</span>}</div>
       <div className="mt-3 sm:hidden"><p className="text-lg font-black text-[#07834A]">{formatPrice(offer.price, offer.currency)}</p><WhatsAppLink offerId={offer.offer_id} href={whatsapp} className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#07834A]"><MessageCircle className="size-4" /> {t.offer.whatsapp}</WhatsAppLink></div>

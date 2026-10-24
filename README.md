@@ -41,16 +41,18 @@ Session refresh runs in `proxy.ts` (Next.js 16's replacement for middleware).
 
 Public search deliberately returns zero results until approved merchants and real offers are present. Never seed production with fictional offers.
 
-## Merchant dashboard
+## Shops ("Add shop" → My shop)
 
-Shops sign in with Google at `/business/register`, enter a shop name and category, and land on `/dashboard`, where they can:
+The merchant flow is deliberately short and mobile-first:
 
-- complete their **shop profile** (WhatsApp number and city are required: listings without a WhatsApp number never appear in search),
-- upload a **verification document** (PDF, JPG or PNG up to 5 MB) to the private `business-verification` bucket,
-- add **listings** from `/dashboard/products`: type what they sell, pick the matching catalog product, or describe a new one (brand, name, model, category and an optional photo). Then edit price, currency and stock, hide or delete listings,
-- **import** many listings from a CSV file (`public/garpuz-catalog-template.csv` shows the format). Rows are matched to catalog products by brand, name and model; products not yet in the catalog are added (an optional `category` column files them, otherwise the shop's category is used), and invalid rows are reported by line.
+1. **Add shop** (`/business/register`) asks for Google sign-in and returns to the same page afterwards. A signed-in user without a shop sees the shop form directly; anyone who already has a shop is sent to My shop (`proxy.ts` redirects before the page streams, and the pages repeat the check).
+2. The shop form asks for three things only: shop name, location (town) and WhatsApp number, then **Create shop**. New shops start as `pending` until an administrator approves them; the category is set to `Other` behind the scenes.
+3. **My shop** (`/dashboard`) shows the shop's name and location, a small **Edit shop** link, and **+ Add your first product** (later **+ Add product**, which stays pinned to the bottom of the screen on phones).
+4. **Add product** asks for the product name (with size where relevant), the price in ₺ and an optional photo, then **Save product** returns to My shop with the product highlighted. Each product can be edited, marked in or out of stock, or deleted.
 
-Shops have no write access to `canonical_products`. New products a shop describes are validated and added by server code with the service role, after matching them against the catalog (case- and spacing-insensitive) so the same product is not created twice; administrators can edit them at `/admin/products`. Product photos (JPG, PNG or WebP up to 5 MB, checked by file signature) go to the public `product-images` storage bucket, which the app creates on first upload. A shop's photo only fills in a product that has none.
+Product matching happens behind the scenes so customers can compare shops' prices for the same product: the typed name is compared with catalog products' full title ("Apple iPhone 15 128GB") or title without the brand, ignoring case and spacing. A name the catalog does not know becomes a new catalog product with no brand. Shops have no write access to `canonical_products`; new products and photos are added by server code with the service role after the shop is verified. Photos (JPG, PNG or WebP up to 5 MB, checked by file signature) go to the public `product-images` bucket, created on first upload, and only fill in a product that has no photo yet.
+
+Links to the earlier dashboard screens (`/dashboard/products`, `/dashboard/import`, `/dashboard/settings`, `/dashboard/profile`, `/business/setup`) redirect to the new screens.
 
 ## Admin dashboard
 
@@ -81,7 +83,7 @@ The public site and merchant dashboard are available in English and Turkish. The
 
 - Public results come only from active offers belonging to approved merchants.
 - Business verification files are stored in a private bucket.
-- Shop setup, profile changes, listings and imports are validated server-side with Zod. The service role is used only for the verification upload, adding shop-described products and photos to the catalog, analytics and admin actions, always after the caller has been verified.
+- Shop creation and edits and products are validated server-side with Zod. The service role is used only for adding shop products and photos to the catalog, analytics and admin actions, always after the caller has been verified.
 - Merchant dashboard reads are restricted through row-level security. Owners can only write their own profile fields (column-level grants); status, ownership, email and the verification document path are written only by trusted server code, and the registration number locks once a shop has been reviewed.
 - Every response carries a Content-Security-Policy, HSTS, `X-Frame-Options: DENY` and related headers (`next.config.ts`).
 - Visitors never need an account to search. Shop owners use Google sign-in, then provide only a shop name and category.
