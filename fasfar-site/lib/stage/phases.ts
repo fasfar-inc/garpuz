@@ -43,3 +43,33 @@ export const SEGMENT_DURATIONS = SEGMENT_VH.map((vh) => vh / SEGMENT_VH[0]);
 export const TIMELINE_DURATION = SEGMENT_DURATIONS.reduce((a, b) => a + b, 0);
 export const CHAPTER_TIMES = [0, SEGMENT_DURATIONS[0], TIMELINE_DURATION];
 export const STAGE_TOTAL_VH = SEGMENT_VH.reduce((a, b) => a + b, 0);
+
+/**
+ * Scene 5 — The Horizon, on its own pinned timeline (0 → 1). The DOM layers
+ * and the Horizon canvas both read these ranges.
+ */
+export const horizonPhases = {
+  // Part 1 — entering the horizon.
+  atmosphere: [0, 0.08],
+  tagline: [0.025, 0.08],
+  headline: [0.075, 0.15],
+  part1Out: [0.17, 0.22],
+  // Part 2 — the transformation.
+  scatterIn: [0.17, 0.3],
+  approach: [0, 0.52],
+  assemble: [0.28, 0.54],
+  illuminate: [0.48, 0.58],
+  orbit: [0.5, 0.68],
+  // Part 3 — the vision.
+  dawn: [0.6, 0.7],
+  statements: [
+    { in: [0.645, 0.685], out: [0.71, 0.735] },
+    { in: [0.73, 0.77], out: [0.795, 0.82] },
+    { in: [0.815, 0.855], out: [0.875, 0.895] },
+  ],
+  // Part 4 — company vision.
+  vision: [0.89, 0.97],
+} as const;
+
+/** Scene 5 pinned scroll distance, in viewport heights. */
+export const HORIZON_VH = { desktop: 8.5, compact: 7 } as const;

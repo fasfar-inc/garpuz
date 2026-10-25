@@ -18,10 +18,12 @@ import {
 import { registerPalette, resetPaletteCache } from "@/lib/stage/palette";
 import { inRange } from "@/lib/stage/scroll";
 import { createStageStore, StageContext } from "@/lib/stage/store";
+import { useNear } from "@/lib/motion/use-near";
 import { IVORY_THEME, NIGHT_THEME } from "@/lib/stage/theme";
 import { SiteHeader } from "@/components/layout/site-header";
 import { BeyondBackdrop, BeyondCopy, BeyondStatements } from "@/components/scenes/beyond-scene";
 import { EcosystemScene } from "@/components/scenes/ecosystem-scene";
+import { HorizonScene } from "@/components/horizon/horizon-scene";
 import { VentureShowcase } from "@/components/showcase/venture-showcase";
 import { HeroScene } from "@/components/scenes/hero-scene";
 import { StageBackdrop } from "@/components/scenes/stage-backdrop";
@@ -65,6 +67,9 @@ export function HomeStage() {
   const [canvasReady, setCanvasReady] = useState(false);
   // Without WebGL the stage still works — typography, colour and scroll story — minus the 3D layer.
   const webgl = useSyncExternalStore(subscribeNever, supportsWebGL, () => false);
+  // The stage canvas lives only while the stage is near the viewport; Scene 5
+  // mounts its own when the visitor gets there, so one WebGL context is live at a time.
+  const stageNear = useNear(stage, 1.5, true);
   const reducedMotion = useSyncExternalStore(subscribeReduced, () => window.matchMedia(REDUCED).matches, () => false);
   useEffect(() => store.setReducedMotion(reducedMotion), [store, reducedMotion]);
 
@@ -331,7 +336,7 @@ export function HomeStage() {
             className="absolute inset-0 transition-opacity duration-[1600ms] ease-out"
             style={{ opacity: canvasReady ? 1 : 0 }}
           >
-            {webgl && (
+            {webgl && stageNear && (
               <CanvasBoundary>
                 <StageCanvas store={store} reducedMotion={reducedMotion} onReady={() => setCanvasReady(true)} />
               </CanvasBoundary>
@@ -354,6 +359,7 @@ export function HomeStage() {
         ))}
       </div>
       <VentureShowcase />
+      <HorizonScene />
     </StageContext.Provider>
   );
 }

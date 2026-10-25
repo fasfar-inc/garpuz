@@ -1,6 +1,5 @@
 "use client";
 
-import { Environment, Lightformer } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -8,6 +7,7 @@ import { lerp } from "@/lib/stage/math";
 import { nightLevel } from "@/lib/stage/levels";
 import { useStage } from "@/lib/stage/store";
 import { radialTexture } from "./sculpture/materials";
+import { StudioEnvironment } from "./studio-environment";
 
 /**
  * Procedural studio lighting (no HDR download): softboxes and strips give
@@ -36,15 +36,7 @@ export function Atmosphere({ starCount }: { starCount: number }) {
       <ambientLight intensity={0.25} />
       <directionalLight ref={key} position={[3, 6, 6]} intensity={1.6} />
       <directionalLight ref={rim} position={[-6, -2, -4]} color="#7f9cff" intensity={0.2} />
-      <Environment resolution={512} frames={1}>
-        <color attach="background" args={["#5f5c58"]} />
-        <Lightformer form="rect" intensity={3.2} position={[0, 6, 1]} rotation-x={Math.PI / 2} scale={[12, 6, 1]} />
-        <Lightformer form="rect" intensity={2.2} position={[-6, 1, 2]} rotation-y={Math.PI / 2} scale={[14, 1.4, 1]} />
-        <Lightformer form="rect" intensity={1.8} position={[6, -0.5, 1]} rotation-y={-Math.PI / 2} scale={[14, 0.9, 1]} />
-        <Lightformer form="rect" intensity={1.2} position={[0, 0.5, 9]} scale={[7, 2.4, 1]} />
-        <Lightformer form="rect" intensity={0.35} color="#1d1d22" position={[0, -6, 0]} rotation-x={-Math.PI / 2} scale={[20, 20, 1]} />
-        <Lightformer form="ring" intensity={2.4} color="#ffd6ab" position={[3.5, -2.5, 5]} scale={2.6} />
-      </Environment>
+      <StudioEnvironment />
       <Stars count={starCount} />
     </>
   );

@@ -23,6 +23,9 @@ export default function StageCanvas({ store, reducedMotion, onReady }: Props) {
   const [maxDpr, setMaxDpr] = useState(() => Math.min(window.devicePixelRatio || 1, compact ? 1.5 : 1.75));
   const [visible, setVisible] = useState(true);
 
+  // A remounted canvas registers a fresh invalidate; drop the dead one on unmount.
+  useEffect(() => () => store.setInvalidate(() => {}), [store]);
+
   useEffect(() => {
     const el = host.current;
     if (!el) return;

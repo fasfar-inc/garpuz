@@ -52,6 +52,19 @@ export const showcase = {
   detailsUnavailable: "A dedicated page and website link will appear here once they are published.",
 };
 
+export const horizon = {
+  eyebrow: "The horizon",
+  tagline: "THE FUTURE ISN'T WAITING.",
+  headline: "WE BUILD IT.",
+  statements: ["NO LIMITS.", "NO BOUNDARIES.", "JUST POSSIBILITIES."],
+  visionEyebrow: "Our vision",
+  visionHeadline: "Building what comes next.",
+  visionBody:
+    "FASFAR develops digital businesses and technology-driven ideas across industries. Our ambition is to create useful products, explore new opportunities, and build for the long term.",
+  /** Becomes a link once a vision page exists. */
+  cta: { label: "Discover Our Vision" } as { label: string; href?: string },
+};
+
 /**
  * Chapters drive the progress rail and header highlighting; append one per new
  * home-page scene. The first three live on the pinned stage timeline; later
@@ -62,4 +75,5 @@ export const chapters = [
   { id: "ecosystem", navId: "ventures" },
   { id: "beyond", navId: "about" },
   { id: "showcase", navId: "ventures" },
+  { id: "horizon", navId: "about" },
 ];

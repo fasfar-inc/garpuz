@@ -4,7 +4,7 @@ The official FASFAR website: Next.js App Router, TypeScript, Tailwind CSS v4, GS
 
 This is a standalone app with its own dependencies, so it can move to its own repository unchanged. The parent repository's lint and typecheck exclude this folder.
 
-The home page is one continuous scroll experience. So far it has four scenes:
+The home page is one continuous scroll experience. So far it has five scenes:
 
 1. **Hero:** ivory studio, the oversized FASFAR wordmark, and a floating chrome and glass sculpture with an entrance and idle motion.
 2. **Ecosystem:** scrolling splits the sculpture into components, the stage turns midnight blue, the camera swings round, and the venture cards appear with leader lines tied to the 3D parts.
@@ -17,6 +17,12 @@ The home page is one continuous scroll experience. So far it has four scenes:
    - FFMate: a conversation that builds up next to a luminous automation flow.
 
    "Explore …" opens a side sheet with the venture's details, without leaving your place in the story.
+
+5. **The Horizon:** a pinned sequence after the last venture.
+   - The last venture dissolves into near-black night, a thin luminous horizon appears, and the camera travels forward. THE FUTURE ISN'T WAITING. / WE BUILD IT. are revealed through masks.
+   - The signature sculpture's parts float in the dark, then fly along curved paths into the Scene 1 assembled pose. It lights from within as the camera circles it once.
+   - Dawn turns the scene ivory. NO LIMITS. / NO BOUNDARIES. / JUST POSSIBILITIES. each have their own entrance and exit.
+   - The sculpture settles beside "Building what comes next." and the Discover Our Vision button.
 
 Every transition is scrubbed by the scroll, so scrolling back up reverses it.
 
@@ -48,6 +54,9 @@ components/
   experience/home-stage  Pins the stage, runs the scroll timeline, entrance, hash links
   scenes/                DOM layers per scene: backdrop, hero, ecosystem, persistent chrome
   three/                 Canvas, camera rig, lighting/stars, sculpture (parts are data in parts.ts), Scene 3 floaters
+  horizon/               Scene 5: pinned timeline and DOM layers (words, statements, vision)
+  three/horizon/         Scene 5 canvas: assembling sculpture (choreography.ts holds the flight paths),
+                         horizon atmosphere, camera
   showcase/              Scene 4: orchestrator, intro, panel, details sheet, recipes.ts
                          (per-visual choreography) and visuals/ (one per venture type)
   ventures/              Venture card, marks (Scene 2), official logos
@@ -84,6 +93,7 @@ Visuals of interfaces that don't exist yet are marked "Concept visual". Prices, 
 
 - The canvas loads client-side only. It pauses when off screen and drops to 1× DPR if the frame rate falls. Phones get lower-detail geometry and fewer stars.
 - With `prefers-reduced-motion`, there is no entrance animation, idle motion, snapping, magnetic pull, Scene 3 zoom or Scene 4 pinning. Venture content fades rather than flies, frames render on demand, and scrolling still moves between the scenes.
-- Scene 4 is DOM and CSS 3D only. The WebGL canvas pauses once the stage has scrolled away.
+- Scene 4 is DOM and CSS 3D only. Scene 5 has its own canvas, built from the same sculpture parts, materials and studio lighting. Each canvas is mounted only near its own section (`useNear`), so at most one WebGL context is live.
+- A shared palette ticker (`lib/stage/palette.ts`) writes the header colours for whichever section owns the scroll position.
 - Venture cards are keyboard-focusable. Focusing or hovering a card highlights its part of the sculpture, and hovering a part highlights its card.
 - The figures beside the hero are counted from the registry. Nothing is hard-coded.

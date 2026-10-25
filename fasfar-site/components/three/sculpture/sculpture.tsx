@@ -16,6 +16,8 @@ import { Orbits } from "./orbits";
 import { orbiters, sculptureParts, sculptureTilt, type Vec3 } from "./parts";
 
 const INTRO_SECONDS = 2.6;
+/** The entrance plays once per visit; if the canvas remounts (scrolling back up from Scene 5) it doesn't replay. */
+let introPlayed = false;
 
 /** Map sculpture part id → index of the featured venture anchored to it. */
 const ventureByPart = new Map<string, number>(
@@ -64,7 +66,8 @@ export function Sculpture({ detail }: { detail: "high" | "low" }) {
     const idle = still ? 0 : 1;
     const t = state.clock.elapsedTime;
 
-    m.intro = still ? 1 : Math.min(1, m.intro + dt / INTRO_SECONDS);
+    m.intro = still || introPlayed ? 1 : Math.min(1, m.intro + dt / INTRO_SECONDS);
+    if (m.intro >= 1) introPlayed = true;
     const intro = easeOutCubic(m.intro);
     const explodeTarget = smoothstep(phases.explode[0], phases.explode[1], store.progress);
     m.explode = still ? explodeTarget : damp(m.explode, explodeTarget, 7, dt);
