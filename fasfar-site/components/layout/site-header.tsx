@@ -43,7 +43,7 @@ export function SiteHeader({ activeId }: { activeId?: string }) {
         </nav>
 
         <div className="flex items-center gap-3">
-          <ContactButton className="hidden md:inline-flex" />
+          <ContactButton className="hidden md:inline-flex" active={current === "contact"} />
           <button
             type="button"
             className="relative z-10 flex h-11 w-11 items-center justify-center rounded-full border border-(--hairline-strong) lg:hidden"
@@ -118,7 +118,7 @@ function NavEntry({ item, active, large, onNavigate }: { item: NavItem; active: 
   );
 }
 
-function ContactButton({ className }: { className?: string }) {
+function ContactButton({ className, active }: { className?: string; active?: boolean }) {
   const content = (
     <>
       {contactCta.label}
@@ -137,7 +137,11 @@ function ContactButton({ className }: { className?: string }) {
     );
   }
   return (
-    <Link href={contactCta.href} className={cn(classes, "hover:bg-(--ink) hover:text-(--paper)")}>
+    <Link
+      href={contactCta.href}
+      aria-current={active ? "page" : undefined}
+      className={cn(classes, active ? "bg-(--ink) text-(--paper)" : "hover:bg-(--ink) hover:text-(--paper)")}
+    >
       {content}
     </Link>
   );

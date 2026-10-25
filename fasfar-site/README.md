@@ -4,7 +4,7 @@ The official FASFAR website: Next.js App Router, TypeScript, Tailwind CSS v4, GS
 
 This is a standalone app with its own dependencies, so it can move to its own repository unchanged. The parent repository's lint and typecheck exclude this folder.
 
-The home page is one continuous scroll experience. So far it has seven scenes:
+The home page is one continuous scroll experience. It has eight scenes and a footer:
 
 1. **Hero:** ivory studio, the oversized FASFAR wordmark, and a floating chrome and glass sculpture with an entrance and idle motion.
 2. **Ecosystem:** scrolling splits the sculpture into components, the stage turns midnight blue, the camera swings round, and the venture cards appear with leader lines tied to the 3D parts.
@@ -33,7 +33,15 @@ The home page is one continuous scroll experience. So far it has seven scenes:
 7. **The Connection** (`#connection`): the invitation to get in touch.
    - Intro: the company profile dissolves, thin luminous threads draw in and meet at a point, and GREAT THINGS / BEGIN WITH / A CONNECTION. rises through masks, with CONNECTION. revealed letter by letter.
    - Network: FASFAR at the centre, linked to the ways to connect (Partner with us, Build with us, Explore opportunities). On desktop, hover or focus lights a link, its nodes respond, the title expands, the summary and an arrow appear, and the other links fade. Click opens an information panel with Back and Close (Esc and the backdrop also close it). Phones get a vertical spine of large touch cards that open the same panel as a bottom sheet.
-   - Invitation: LET'S BUILD / SOMETHING / MEANINGFUL., "The next great idea could begin with a conversation." and a magnetic START A CONVERSATION button.
+   - Invitation: LET'S BUILD / SOMETHING / MEANINGFUL., "The next great idea could begin with a conversation." and a magnetic START A CONVERSATION button, which leads to Scene 8's contact experience.
+
+8. **The Grand Finale** (`#finale`, with `#contact` at the reveal): one pinned, scrubbed sequence.
+   - Part 1: Scene 7's lines retract into the centre as ivory turns to midnight. The camera travels down a corridor of luminous threads (Scene 7's connections, now in 3D) towards the signature sculpture, which approaches from the distance as a sweeping light and rim lights reveal its chrome and glass.
+   - Part 2: the sculpture turns and opens, then each component travels on an arc to its own slot at the edge of the frame. The camera swings to a three-quarter view and settles front-on, and the FASFAR wordmark opens from the centre behind it. This runs the opposite way to Scene 5, from assembled to a composition.
+   - Part 3: dawn turns the field ivory, the wordmark turns to ink and rises, and WHAT'S NEXT / STARTS HERE. is revealed letter by letter, then the supporting line and a magnetic LET'S CONNECT button.
+   - Contact: LET'S CONNECT opens a full-screen panel that grows out of the button. Choose one of four categories and the form unfolds. If the visitor opened a path in Scene 7's network, its category is preselected.
+
+The **footer** is midnight, with thin architectural lines, a minimal index, and a FASFAR wordmark that rises out of the bottom edge. A small drawing of the sculpture, generated from the same part list, parts gently on hover and leads back to Scene 1.
 
 Every transition is scrubbed by the scroll, so scrolling back up reverses it.
 
@@ -57,8 +65,15 @@ content/                 What the site says: edit these to change the site
   company.ts             Scene 6: intro, how-we-build steps, structure groups, profile, and
                          company info (history, leadership, divisions, offices, partnerships,
                          announcements — each shown only once it has verified entries)
+  finale.ts              Scene 8 copy, contact categories and panel copy, footer links and
+                         (verified-only) company details
   connection.ts          Scene 7: intro and invitation copy, opportunity categories (network +
                          panel content, with an `enabled` switch), and the conversation CTA target
+lib/contact/
+  schema.ts              Contact validation shared by the form and the API
+  delivery.ts            Server-only delivery providers (Resend email or signed webhook)
+  intent.ts              The Scene 7 choice that preselects a contact category
+app/api/contact/         GET: is delivery configured? POST: validate, filter spam, rate-limit, deliver
 lib/stage/
   store.ts               Shared state between the GSAP timeline and WebGL (no React renders on scroll)
   phases.ts              Timeline segments and where each beat sits in them (used by DOM and 3D)
@@ -75,6 +90,10 @@ components/
                          horizon atmosphere, camera
   inside/                Scene 6: orchestrator, intro, how-we-build, structure diagram, profile,
                          company-info blocks, shared linework
+  finale/                Scene 8: pinned finale timeline, contact panel (native dialog), footer,
+                         mini sculpture (SVG from parts.ts)
+  three/finale/          Scene 8 canvas: sculpture choreography (frame slots in choreography.ts),
+                         light-thread corridor, camera, atmosphere
   connection/            Scene 7: orchestrator, intro threads, opportunity network, information
                          panel (native dialog), invitation and conversation button
   showcase/              Scene 4: orchestrator, intro, panel, details sheet, recipes.ts
@@ -102,6 +121,12 @@ How the layers fit together:
 - **Company information:** fill the lists in `content/company.ts` (`companyInfo`); each block appears under the profile once it has entries. Add structure groups (divisions, operating units) the same way: empty groups are hidden, and each new group gets its own ring in the diagram and its own branch in the mobile tree.
 - **Ways to connect:** categories live in `content/connection.ts`. Future ones (strategic partnerships, technology collaborations, business development, startup collaborations, investment inquiries, other opportunities) are already listed with `enabled: false`; write their summary and panel copy, then set `enabled: true`. The desktop network lays out however many are enabled, and the mobile list follows.
 - **Start a conversation:** set `conversationCta.href` in `content/connection.ts` (e.g. `"#contact"` once Scene 8 exists). Until then the button and the panels show "Coming soon" and link nowhere; nothing is submitted.
+- **Contact delivery:** see `.env.example`. Set `RESEND_API_KEY`, `CONTACT_TO_EMAIL` and `CONTACT_FROM_EMAIL` to deliver by email through Resend, or `CONTACT_WEBHOOK_URL` (plus an optional `CONTACT_WEBHOOK_SECRET` for an HMAC signature) to post each inquiry to your own endpoint. These variables are server-only.
+  - Until one is configured, the panel says the contact service isn't connected yet and sends nothing.
+  - The form reports success only after the provider has accepted the message.
+  - Spam protection: a honeypot field, a minimum fill time, a same-origin check, a body size limit, and a per-instance rate limit of 5 per 10 minutes per IP. Behind several instances, add shared or platform rate limiting.
+  - Nothing is stored by the site. Link a privacy policy in `contact.privacyPolicy` (`content/finale.ts`) once one is published.
+- **Footer:** links, extra link groups, social profiles and company details live in `footer` (`content/finale.ts`). Empty fields aren't shown. Careers appears automatically once its nav item has an `href`.
 - **Navigation:** any `#id` link scrolls there. Long jumps skip instantly to just before the target and glide the rest, and arriving with a hash (`/#inside`) works.
 - **Re-shape the sculpture:** edit the assembled and exploded poses in `components/three/sculpture/parts.ts`.
 
@@ -118,6 +143,7 @@ Visuals of interfaces that don't exist yet are marked "Concept visual". Prices, 
 - The canvas loads client-side only. It pauses when off screen and drops to 1× DPR if the frame rate falls. Phones get lower-detail geometry and fewer stars.
 - With `prefers-reduced-motion`, there is no entrance animation, idle motion, snapping, magnetic pull, Scene 3 zoom or Scene 4 pinning. Venture content fades rather than flies, frames render on demand, and scrolling still moves between the scenes.
 - Scene 4 is DOM and CSS 3D only. Scene 5 has its own canvas, built from the same sculpture parts, materials and studio lighting. Each canvas is mounted only near its own section (`useNear`), so at most one WebGL context is live.
+- Scene 8 has its own canvas, mounted only near Scene 8 (Scene 5's is gone by then). It reuses the sculpture's parts, geometry, materials and studio lighting. The threads are 1px lines with travelling sprites. Under reduced motion Scene 8 isn't pinned and shows its final composition.
 - Scenes 6 and 7 use no WebGL, only SVG and CSS. Their pins are desktop-only, and phones and reduced motion scroll normally. The Scene 7 panel is a native modal dialog: focus moves into it, Esc closes it, and the page behind is inert. Scene 5's canvas stops rendering once you scroll past it.
 - A shared palette ticker (`lib/stage/palette.ts`) writes the header colours for whichever section owns the scroll position.
 - Venture cards are keyboard-focusable. Focusing or hovering a card highlights its part of the sculpture, and hovering a part highlights its card.

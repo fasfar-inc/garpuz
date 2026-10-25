@@ -4,6 +4,8 @@
  * existing partners, investors or agreements.
  */
 
+import type { ContactCategoryId } from "./finale";
+
 export type OpportunityCategory = {
   id: string;
   title: string;
@@ -11,6 +13,8 @@ export type OpportunityCategory = {
   summary: string;
   /** Shown only when true. Future categories ship switched off. */
   enabled: boolean;
+  /** The Scene 8 contact category to preselect once a visitor has chosen this path. */
+  contactCategory: ContactCategoryId;
   panel: {
     heading: string;
     intro: string;
@@ -40,6 +44,7 @@ export const opportunityCategories: OpportunityCategory[] = [
     title: "PARTNER WITH US",
     summary: "For businesses and organizations interested in collaborating with FASFAR.",
     enabled: true,
+    contactCategory: "partnerships",
     panel: {
       heading: "Partner with FASFAR",
       intro: "FASFAR develops digital businesses across different industries. If your organization sees a way to work together, we would like to hear about it.",
@@ -52,6 +57,7 @@ export const opportunityCategories: OpportunityCategory[] = [
     title: "BUILD WITH US",
     summary: "For founders, entrepreneurs, and innovators exploring new ideas.",
     enabled: true,
+    contactCategory: "collaboration",
     panel: {
       heading: "Build with FASFAR",
       intro: "FASFAR turns ideas into products and businesses. If you are exploring an idea and are interested in building it with a technology company, start with a conversation.",
@@ -64,6 +70,7 @@ export const opportunityCategories: OpportunityCategory[] = [
     title: "EXPLORE OPPORTUNITIES",
     summary: "Discover potential opportunities across the FASFAR ecosystem.",
     enabled: true,
+    contactCategory: "business",
     panel: {
       heading: "Explore opportunities",
       intro: "FASFAR develops several ventures and continues to explore new ones. If you see a potential opportunity across the ecosystem, we are open to discussing it.",
@@ -74,18 +81,19 @@ export const opportunityCategories: OpportunityCategory[] = [
   // Future categories: write their panel copy, then set `enabled: true`.
   ...(
     [
-      ["strategic", "STRATEGIC PARTNERSHIPS"],
-      ["technology", "TECHNOLOGY COLLABORATIONS"],
-      ["business-development", "BUSINESS DEVELOPMENT"],
-      ["startups", "STARTUP COLLABORATIONS"],
-      ["investment", "INVESTMENT INQUIRIES"],
-      ["other", "OTHER OPPORTUNITIES"],
+      ["strategic", "STRATEGIC PARTNERSHIPS", "partnerships"],
+      ["technology", "TECHNOLOGY COLLABORATIONS", "collaboration"],
+      ["business-development", "BUSINESS DEVELOPMENT", "business"],
+      ["startups", "STARTUP COLLABORATIONS", "collaboration"],
+      ["investment", "INVESTMENT INQUIRIES", "business"],
+      ["other", "OTHER OPPORTUNITIES", "general"],
     ] as const
-  ).map(([id, title]) => ({
+  ).map(([id, title, contactCategory]) => ({
     id,
     title,
     summary: "",
     enabled: false,
+    contactCategory,
     panel: { heading: "", intro: "", audience: [], topics: [] },
   })),
 ];
@@ -98,8 +106,7 @@ export const invitation = {
 };
 
 /**
- * Where "Start a conversation" leads. Scene 8 (the contact experience) will
- * set this, e.g. "#contact". Until then the button shows "Coming soon" and
- * goes nowhere — no broken links, no fake success states.
+ * Where "Start a conversation" leads: Scene 8's contact experience. Without
+ * an href the button shows "Coming soon" and goes nowhere.
  */
-export const conversationCta: { label: string; href?: string } = { label: "START A CONVERSATION" };
+export const conversationCta: { label: string; href?: string } = { label: "START A CONVERSATION", href: "#contact" };

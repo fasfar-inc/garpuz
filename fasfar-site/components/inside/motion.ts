@@ -11,3 +11,6 @@ export type Conditions = { always: boolean; cinematic: boolean; reduced: boolean
  */
 export const PRIORITY = { arrival: -3, intro: -3, process: -4, structure: -5, profile: -6 } as const;
 export const CONNECTION_PRIORITY = { arrival: -7, intro: -7, network: -8, invitation: -9 } as const;
+/** Scene 8 and the footer refresh after Scene 7. */
+export const FINALE_PRIORITY = -10;
+export const FOOTER_PRIORITY = -11;

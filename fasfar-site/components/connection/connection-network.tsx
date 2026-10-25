@@ -8,6 +8,7 @@ import { enabledCategories, network, type OpportunityCategory } from "@/content/
 import { cn } from "@/lib/cn";
 import { ArrowUpRight } from "@/components/ui/icons";
 import { CONDITIONS, CONNECTION_PRIORITY, type Conditions } from "@/components/inside/motion";
+import { setContactIntent } from "@/lib/contact/intent";
 import { OpportunityPanel } from "./opportunity-panel";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -114,7 +115,11 @@ export function ConnectionNetwork() {
     { scope: root },
   );
 
-  const openPanel = (category: OpportunityCategory, index: number) => setOpen({ category, index });
+  const openPanel = (category: OpportunityCategory, index: number) => {
+    setOpen({ category, index });
+    // Remember the choice so Scene 8's contact form can start there.
+    setContactIntent(category.contactCategory);
+  };
   const dim = (id: string) => active !== null && active !== id;
 
   return (

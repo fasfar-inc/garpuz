@@ -181,6 +181,64 @@ body {
   }
 }
 
+/* Scene 8 contact panel: a circle of midnight growing out of the button that opened it. */
+@keyframes contact-open {
+  from {
+    clip-path: circle(0px at var(--cx, 50%) var(--cy, 50%));
+  }
+  to {
+    clip-path: circle(150vmax at var(--cx, 50%) var(--cy, 50%));
+  }
+}
+@keyframes contact-close {
+  from {
+    clip-path: circle(150vmax at var(--cx, 50%) var(--cy, 50%));
+  }
+  to {
+    clip-path: circle(0px at var(--cx, 50%) var(--cy, 50%));
+  }
+}
+@keyframes contact-line-in {
+  from {
+    transform: translateY(105%);
+  }
+}
+.contact-panel[open] {
+  animation: contact-open 0.9s cubic-bezier(0.7, 0, 0.2, 1) both;
+}
+.contact-panel[data-closing] {
+  animation: contact-close 0.65s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+.contact-panel[open] [data-cp-line] {
+  animation: contact-line-in 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.35s + var(--i, 0) * 0.09s);
+}
+.contact-panel[open] [data-cp-item] {
+  animation: panel-item-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.45s + var(--i, 0) * 0.08s);
+}
+
+/* Footer: the mini sculpture's components part gently on hover or focus. */
+.mini-part {
+  transform-box: fill-box;
+  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.group:hover .mini-part,
+.group:focus-visible .mini-part {
+  transform: translateY(var(--spread, 0px));
+}
+@keyframes footer-pulse {
+  from {
+    left: -10rem;
+  }
+  to {
+    left: 100%;
+  }
+}
+.footer-pulse {
+  animation: footer-pulse 7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
 html {
   scrollbar-gutter: stable;
 }
@@ -192,8 +250,16 @@ html {
   .connection-panel[open]::backdrop,
   .connection-panel[open] [data-panel-item],
   .connection-panel[data-closing],
-  .connection-panel[data-closing]::backdrop {
+  .connection-panel[data-closing]::backdrop,
+  .contact-panel[open],
+  .contact-panel[data-closing],
+  .contact-panel[open] [data-cp-line],
+  .contact-panel[open] [data-cp-item],
+  .footer-pulse {
     animation: none;
+  }
+  .mini-part {
+    transition: none;
   }
 
   html {

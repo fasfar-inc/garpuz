@@ -73,3 +73,29 @@ export const horizonPhases = {
 
 /** Scene 5 pinned scroll distance, in viewport heights. */
 export const HORIZON_VH = { desktop: 8.5, compact: 7 } as const;
+
+/**
+ * Scene 8 — The Grand Finale, on its own pinned timeline (0 → 1). The DOM
+ * layers and the Finale canvas both read these ranges.
+ */
+export const finalePhases = {
+  // Part 1 — the final transition.
+  linesOut: [0, 0.09],
+  night: [0.02, 0.12],
+  threads: [0.03, 0.14],
+  travel: [0.04, 0.36],
+  reveal: [0.16, 0.36],
+  // Part 2 — the signature transformation.
+  turn: [0.32, 0.62],
+  separate: [0.4, 0.62],
+  frontal: [0.34, 0.64],
+  wordmark: [0.44, 0.62],
+  // Part 3 — the grand reveal.
+  dawn: [0.64, 0.76],
+  rise: [0.66, 0.8],
+  headline: [0.72, 0.86],
+  copy: [0.84, 0.94],
+} as const;
+
+/** Scene 8 pinned scroll distance, in viewport heights. */
+export const FINALE_VH = { desktop: 5.5, compact: 4.2 } as const;

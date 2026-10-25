@@ -12,7 +12,8 @@ export const navigation: NavItem[] = [
   { id: "careers", label: "Careers" },
 ];
 
-export const contactCta: { label: string; href?: string } = { label: "Get in Touch" };
+/** Scene 8 holds the contact experience. */
+export const contactCta: { label: string; href?: string } = { label: "Get in Touch", href: "#contact" };
 
 export const manifesto = ["People", "Ideas", "Technology", "A brighter tomorrow"];
 export const signOff = ["A more connected", "tomorrow"];
@@ -78,4 +79,5 @@ export const chapters = [
   { id: "horizon", navId: "about" },
   { id: "inside", navId: "about" },
   { id: "connection", navId: "contact" },
+  { id: "finale", navId: "contact" },
 ];

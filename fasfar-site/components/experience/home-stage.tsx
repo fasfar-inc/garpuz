@@ -25,6 +25,8 @@ import { BeyondBackdrop, BeyondCopy, BeyondStatements } from "@/components/scene
 import { EcosystemScene } from "@/components/scenes/ecosystem-scene";
 import { HorizonScene } from "@/components/horizon/horizon-scene";
 import { ConnectionScene } from "@/components/connection/connection-scene";
+import { FinaleScene } from "@/components/finale/finale-scene";
+import { SiteFooter } from "@/components/finale/site-footer";
 import { InsideFasfar } from "@/components/inside/inside-fasfar";
 import { VentureShowcase } from "@/components/showcase/venture-showcase";
 import { HeroScene } from "@/components/scenes/hero-scene";
@@ -390,6 +392,8 @@ export function HomeStage() {
       <HorizonScene />
       <InsideFasfar />
       <ConnectionScene />
+      <FinaleScene />
+      <SiteFooter />
     </StageContext.Provider>
   );
 }
