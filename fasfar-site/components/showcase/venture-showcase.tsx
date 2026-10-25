@@ -7,6 +7,8 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { chapters } from "@/content/site";
 import { ventures as allVentures, type Venture } from "@/content/ventures";
 import { cn } from "@/lib/cn";
+import { registerPalette, resetPaletteCache } from "@/lib/stage/palette";
+import { inRange } from "@/lib/stage/scroll";
 import { StageContext } from "@/lib/stage/store";
 import { IVORY_THEME, themeFromColors, type ThemeVars } from "@/lib/stage/theme";
 import { enterCopy, recipeFor } from "./recipes";
@@ -91,7 +93,7 @@ export function VentureShowcase({ ventures = allVentures }: { ventures?: Venture
         let themeTween: gsap.core.Tween | null = null;
         const setTheme = (vars: ThemeVars) => {
           themeTween?.kill();
-          themeTween = gsap.to(root, { ...vars, duration: 0.6 });
+          themeTween = gsap.to(root, { ...vars, duration: 0.6, onUpdate: resetPaletteCache });
         };
         ScrollTrigger.create({
           trigger: sec,
@@ -106,14 +108,13 @@ export function VentureShowcase({ ventures = allVentures }: { ventures?: Venture
           },
         });
 
+        let unregisterPalette = () => {};
         if (cinematic) {
           // ── Desktop: pinned sequence, one timeline unit per venture ─────
           const n = panels.length;
-          // The sequence animates its palette on a proxy, written to the page
-          // only while the sequence is in view (its scrub smoothing must not
-          // repaint the header once the visitor has scrolled elsewhere).
+          // The sequence animates its palette on a proxy; the palette ticker
+          // writes it while the sequence owns the scroll position.
           const theme = { ...themeFromColors(ventures[0].colors) };
-          const writeTheme = () => Object.entries(theme).forEach(([k, v]) => root.style.setProperty(k, v));
           const tl = gsap.timeline({
             defaults: { ease: "none" },
             scrollTrigger: {
@@ -127,10 +128,6 @@ export function VentureShowcase({ ventures = allVentures }: { ventures?: Venture
               onLeaveBack: () => setTheme(IVORY_THEME),
             },
             onUpdate: () => {
-              if (tl.scrollTrigger?.isActive) {
-                themeTween?.kill();
-                writeTheme();
-              }
               const i = Math.min(n - 1, Math.max(0, Math.floor(tl.time() + 0.12)));
               if (i !== activeRef.current) {
                 activeRef.current = i;
@@ -139,6 +136,7 @@ export function VentureShowcase({ ventures = allVentures }: { ventures?: Venture
             },
           });
           tl.set({}, {}, n);
+          unregisterPalette = registerPalette({ owns: () => inRange(tl.scrollTrigger), values: theme });
 
           // The first venture arrives while the track scrolls into place.
           const first = gsap.timeline({ scrollTrigger: { trigger: track, start: "top 92%", end: "top top", scrub, refreshPriority: -1 } });
@@ -209,6 +207,7 @@ export function VentureShowcase({ ventures = allVentures }: { ventures?: Venture
         ScrollTrigger.sort();
         ScrollTrigger.refresh();
         return () => {
+          unregisterPalette();
           sec.dataset.mode = "stacked";
           seek.current = null;
         };

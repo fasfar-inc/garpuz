@@ -15,6 +15,8 @@ import {
   STAGE_TOTAL_VH,
   TIMELINE_DURATION,
 } from "@/lib/stage/phases";
+import { registerPalette, resetPaletteCache } from "@/lib/stage/palette";
+import { inRange } from "@/lib/stage/scroll";
 import { createStageStore, StageContext } from "@/lib/stage/store";
 import { IVORY_THEME, NIGHT_THEME } from "@/lib/stage/theme";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -24,6 +26,7 @@ import { VentureShowcase } from "@/components/showcase/venture-showcase";
 import { HeroScene } from "@/components/scenes/hero-scene";
 import { StageBackdrop } from "@/components/scenes/stage-backdrop";
 import { StageChrome } from "@/components/scenes/stage-chrome";
+import { CanvasBoundary, supportsWebGL } from "@/components/three/canvas-boundary";
 import { Wordmark } from "@/components/ui/wordmark";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -31,6 +34,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 const StageCanvas = dynamic(() => import("@/components/three/stage-canvas"), { ssr: false });
 
 const REDUCED = "(prefers-reduced-motion: reduce)";
+const subscribeNever = () => () => {};
 const subscribeReduced = (cb: () => void) => {
   const mq = window.matchMedia(REDUCED);
   mq.addEventListener("change", cb);
@@ -59,6 +63,8 @@ export function HomeStage() {
   const stage = useRef<HTMLElement>(null);
   const stageWrap = useRef<HTMLDivElement>(null);
   const [canvasReady, setCanvasReady] = useState(false);
+  // Without WebGL the stage still works — typography, colour and scroll story — minus the 3D layer.
+  const webgl = useSyncExternalStore(subscribeNever, supportsWebGL, () => false);
   const reducedMotion = useSyncExternalStore(subscribeReduced, () => window.matchMedia(REDUCED).matches, () => false);
   useEffect(() => store.setReducedMotion(reducedMotion), [store, reducedMotion]);
 
@@ -77,11 +83,9 @@ export function HomeStage() {
     () => {
       const q = gsap.utils.selector(stage);
       const root = document.documentElement;
-      // The stage animates its palette on a proxy and writes it to the page
-      // only while the stage is in view, so its scrub smoothing can't repaint
-      // the header after a later section has set its own palette.
+      // The stage animates its palette on a proxy; the palette ticker writes
+      // it while the stage owns the scroll position (see lib/stage/palette.ts).
       const theme = { ...IVORY_THEME };
-      const writeTheme = () => Object.entries(theme).forEach(([k, v]) => root.style.setProperty(k, v));
       const intro = document.querySelectorAll<HTMLElement>("[data-intro]");
 
       // Entrance.
@@ -107,15 +111,24 @@ export function HomeStage() {
           pin: true,
           scrub: reducedMotion ? true : 0.9,
           invalidateOnRefresh: true,
+          // Past the stage its palette is final (ivory), whatever the scrub is still catching up on.
+          onLeave: () => {
+            gsap.set(root, IVORY_THEME);
+            resetPaletteCache();
+          },
           // Scene 1 ↔ 2 settles on either scene, in the scroll direction;
           // Scene 3 is a continuous read, so it scrolls freely.
           snap: reducedMotion
             ? undefined
             : {
+                // Decide from where the visitor actually stopped, not GSAP's
+                // velocity-projected destination: rest anywhere from Scene 2 on,
+                // and settle on Scene 1 or 2 (in the scroll direction) between them.
                 snapTo: (value: number) => {
-                  if (value >= segment1End) return value;
-                  const direction = tl.scrollTrigger?.direction ?? 1;
-                  return direction > 0 ? segment1End : 0;
+                  const st = tl.scrollTrigger;
+                  const current = st ? st.progress : value;
+                  if (current <= 0.0005 || current >= segment1End) return current;
+                  return (st?.direction ?? 1) > 0 ? segment1End : 0;
                 },
                 duration: { min: 0.4, max: 1.4 },
                 delay: 0.15,
@@ -128,14 +141,12 @@ export function HomeStage() {
           store.outro = clamp01((time - CHAPTER_TIMES[1]) / S2);
           // Scrub smoothing keeps updating after the pin releases; only claim
           // the chapter while the stage is actually in view.
-          if (tl.scrollTrigger?.isActive) {
-            store.setChapter(chapterAt(time));
-            writeTheme();
-          }
+          if (inRange(tl.scrollTrigger)) store.setChapter(chapterAt(time));
           store.invalidate();
         },
       });
       tl.set({}, {}, TIMELINE_DURATION);
+      const unregisterPalette = registerPalette({ owns: () => inRange(tl.scrollTrigger), values: theme });
 
       tl.to(q("[data-hero]"), { y: -70, autoAlpha: 0, stagger: 0.015, duration: span(phases.heroOut) * 0.8 }, phases.heroOut[0])
         .to(q("[data-wordmark]"), { yPercent: -18, scale: 1.12, autoAlpha: 0, filter: "blur(14px)", duration: span(phases.heroOut) }, phases.heroOut[0])
@@ -269,6 +280,7 @@ export function HomeStage() {
       ScrollTrigger.sort();
       ScrollTrigger.refresh();
       document.fonts?.ready.then(() => ScrollTrigger.refresh());
+      return unregisterPalette;
     },
     { scope: stage, dependencies: [reducedMotion], revertOnUpdate: true },
   );
@@ -319,7 +331,11 @@ export function HomeStage() {
             className="absolute inset-0 transition-opacity duration-[1600ms] ease-out"
             style={{ opacity: canvasReady ? 1 : 0 }}
           >
-            <StageCanvas store={store} reducedMotion={reducedMotion} onReady={() => setCanvasReady(true)} />
+            {webgl && (
+              <CanvasBoundary>
+                <StageCanvas store={store} reducedMotion={reducedMotion} onReady={() => setCanvasReady(true)} />
+              </CanvasBoundary>
+            )}
           </div>
 
           <HeroScene />
