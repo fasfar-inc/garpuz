@@ -9,8 +9,10 @@ import { createContext, useContext, useSyncExternalStore } from "react";
  * UI needs to render (hovered venture, active chapter) go through `subscribe`.
  */
 export type StageStore = {
-  /** Smoothed timeline progress across the pinned stage, 0 → 1. */
+  /** Scene 1 → 2 transition progress, 0 → 1. */
   progress: number;
+  /** Scene 2 → 3 transition progress, 0 → 1. */
+  outro: number;
   /** Normalised pointer, -1 → 1 on both axes. */
   pointer: { x: number; y: number };
   reducedMotion: boolean;
@@ -38,6 +40,7 @@ export function createStageStore(): StageStore {
   const emit = () => listeners.forEach((l) => l());
   const store: StageStore = {
     progress: 0,
+    outro: 0,
     pointer: { x: 0, y: 0 },
     reducedMotion: false,
     cards: [],

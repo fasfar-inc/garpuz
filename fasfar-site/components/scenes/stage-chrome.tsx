@@ -1,6 +1,6 @@
 "use client";
 
-import { chapters, ecosystem, hero, manifesto, signOff } from "@/content/site";
+import { beyond, chapters, ecosystem, hero, manifesto, signOff } from "@/content/site";
 import { cn } from "@/lib/cn";
 import { useStageValue } from "@/lib/stage/store";
 import { Globe } from "@/components/ui/icons";
@@ -10,7 +10,7 @@ export function StageChrome() {
   const chapter = useStageValue((s) => s.chapter, 0);
   return (
     <div className="pointer-events-none absolute inset-0 text-(--ink)">
-      <p data-intro="rise" className="eyebrow absolute right-[4.2vw] top-[15%] hidden border-l border-(--hairline-strong) py-1 pl-6 tall:block">
+      <p data-intro="rise" data-manifesto className="eyebrow absolute right-[4.2vw] top-[15%] hidden border-l border-(--hairline-strong) py-1 pl-6 tall:block">
         {manifesto.map((line) => (
           <span key={line} className="block">
             {line}
@@ -35,6 +35,11 @@ export function StageChrome() {
             {ecosystem.scrollHint[0]}
             <br />
             {ecosystem.scrollHint[1]}
+          </span>
+          <span data-hint="beyond" className="invisible absolute inset-0 block">
+            {beyond.scrollHint[0]}
+            <br />
+            {beyond.scrollHint[1]}
           </span>
         </span>
       </div>

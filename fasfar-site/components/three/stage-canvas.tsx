@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { StageContext, type StageStore } from "@/lib/stage/store";
 import { Atmosphere } from "./atmosphere";
 import { CameraRig } from "./camera-rig";
+import { Floaters } from "./floaters";
 import { Sculpture } from "./sculpture/sculpture";
 
 type Props = { store: StageStore; reducedMotion: boolean; onReady?: () => void };
@@ -52,6 +53,7 @@ export default function StageCanvas({ store, reducedMotion, onReady }: Props) {
             <CameraRig />
             <Atmosphere starCount={compact ? 350 : 900} />
             <Sculpture detail={compact ? "low" : "high"} />
+            <Floaters detail={compact ? "low" : "high"} />
           </Suspense>
         </StageContext.Provider>
       </Canvas>

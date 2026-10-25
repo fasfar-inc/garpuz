@@ -8,7 +8,7 @@ export const navigation: NavItem[] = [
   { id: "home", label: "Home", href: "#top" },
   { id: "ventures", label: "Our Ventures", href: "#ecosystem" },
   { id: "technology", label: "Technology" },
-  { id: "about", label: "About" },
+  { id: "about", label: "About", href: "#beyond" },
   { id: "careers", label: "Careers" },
 ];
 
@@ -32,8 +32,19 @@ export const ecosystem = {
   scrollHint: ["Scroll", "to discover"],
 };
 
+export const beyond = {
+  eyebrow: "Beyond the ordinary",
+  statements: ["WE THINK.", "WE CREATE.", "WE BUILD."],
+  headline: ["More than one idea.", "More than one industry."],
+  body: "FASFAR is a technology company creating and developing digital businesses across different industries.",
+  /** Becomes a link once the destination page exists. */
+  cta: { label: "Discover FASFAR" } as { label: string; href?: string },
+  scrollHint: ["Scroll up", "to revisit"],
+};
+
 /** Chapters drive the progress rail; append one per new home-page scene. */
 export const chapters = [
   { id: "home", navId: "home" },
   { id: "ecosystem", navId: "ventures" },
+  { id: "beyond", navId: "about" },
 ];

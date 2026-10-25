@@ -4,8 +4,8 @@ import { Environment, Lightformer } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { lerp, smoothstep } from "@/lib/stage/math";
-import { phases } from "@/lib/stage/phases";
+import { lerp } from "@/lib/stage/math";
+import { nightLevel } from "@/lib/stage/levels";
 import { useStage } from "@/lib/stage/store";
 import { radialTexture } from "./sculpture/materials";
 
@@ -22,7 +22,7 @@ export function Atmosphere({ starCount }: { starCount: number }) {
   const nightKey = useMemo(() => new THREE.Color("#a9bfff"), []);
 
   useFrame(({ scene }) => {
-    const night = smoothstep(phases.night[0], phases.night[1], store.progress);
+    const night = nightLevel(store);
     scene.environmentIntensity = lerp(1, 0.62, night);
     if (key.current) {
       key.current.color.lerpColors(ivoryKey, nightKey, night);
@@ -86,7 +86,7 @@ function Stars({ count }: { count: number }) {
   );
 
   useFrame(({ clock }) => {
-    const night = smoothstep(phases.night[0] + 0.15, phases.night[1] + 0.1, store.progress);
+    const night = nightLevel(store, [0.15, 0.1]);
     const twinkle = store.reducedMotion ? 1 : 0.85 + Math.sin(clock.elapsedTime * 0.8) * 0.15;
     material.opacity = night * 0.85 * twinkle;
   });

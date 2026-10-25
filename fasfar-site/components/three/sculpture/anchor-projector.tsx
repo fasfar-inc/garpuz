@@ -5,7 +5,7 @@ import { useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { featuredVentures } from "@/content/ventures";
 import { damp } from "@/lib/stage/math";
-import { phases } from "@/lib/stage/phases";
+import { beyondPhases, phases } from "@/lib/stage/phases";
 import { useStage } from "@/lib/stage/store";
 import { sculptureParts } from "./parts";
 
@@ -38,7 +38,7 @@ export function useAnchorProjector(parts: RefObject<(THREE.Group | null)[]>, ena
   const smoothed = useRef(featuredVentures.map(() => ({ x: 0, y: 0, init: false })));
 
   useFrame(({ camera, gl }, dt) => {
-    if (!enabled || store.progress < phases.cardsIn[0] - 0.02) return;
+    if (!enabled || store.progress < phases.cardsIn[0] - 0.02 || store.outro > beyondPhases.ecosystemOut[1]) return;
     const host = gl.domElement.getBoundingClientRect();
     // World matrices are refreshed during render, after useFrame. Update them
     // now so on-demand frames (reduced motion) never project stale poses.

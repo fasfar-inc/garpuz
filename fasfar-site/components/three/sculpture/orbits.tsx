@@ -3,8 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { smoothstep } from "@/lib/stage/math";
-import { phases } from "@/lib/stage/phases";
+import { nightLevel } from "@/lib/stage/levels";
 import { useStage } from "@/lib/stage/store";
 import { radialTexture } from "./materials";
 
@@ -42,7 +41,7 @@ export function Orbits() {
   const nodes = useRef<(THREE.Sprite | null)[]>([]);
 
   useFrame(({ clock }) => {
-    const night = smoothstep(phases.night[0] + 0.1, phases.night[1] + 0.15, store.progress);
+    const night = nightLevel(store, [0.1, 0.15]);
     const t = store.reducedMotion ? 0 : clock.elapsedTime;
     lines.forEach((l, i) => {
       (l.material as THREE.LineBasicMaterial).opacity = night * (0.22 - i * 0.04);

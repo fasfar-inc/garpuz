@@ -6,7 +6,8 @@ import * as THREE from "three";
 import { featuredVentures } from "@/content/ventures";
 import { getStageLayout } from "@/lib/stage/layout";
 import { damp, easeInOutCubic, easeOutCubic, lerp, smoothstep } from "@/lib/stage/math";
-import { phases } from "@/lib/stage/phases";
+import { beyondPhases, phases } from "@/lib/stage/phases";
+import { beyondAt, nightLevel } from "@/lib/stage/levels";
 import { useStage } from "@/lib/stage/store";
 import { useAnchorProjector } from "./anchor-projector";
 import { createPartGeometry } from "./geometry";
@@ -68,16 +69,21 @@ export function Sculpture({ detail }: { detail: "high" | "low" }) {
     const explodeTarget = smoothstep(phases.explode[0], phases.explode[1], store.progress);
     m.explode = still ? explodeTarget : damp(m.explode, explodeTarget, 7, dt);
     const e = easeInOutCubic(m.explode);
-    const night = smoothstep(phases.night[0], phases.night[1], store.progress);
+    const night = nightLevel(store);
+    // Scene 3: the sculpture rises, turns and drifts apart out of frame.
+    const exit = beyondAt(store, beyondPhases.sculptureExit) ** 2;
 
     if (root.current && tilt.current) {
       const scale = lerp(layout.hero.scale, layout.ecosystem.scale, e) * lerp(0.84, 1, intro);
-      root.current.scale.setScalar(scale);
-      root.current.position.y = Math.sin(t * 0.55) * 0.07 * idle;
+      root.current.scale.setScalar(scale * (1 + exit * 0.3));
+      root.current.position.y = Math.sin(t * 0.55) * 0.07 * idle + exit * 9.5;
+      root.current.position.x = exit * -1.2;
+      root.current.visible = exit < 0.999;
       lerp3(tilt.current.rotation, sculptureTilt.assembled, sculptureTilt.exploded, e);
       tilt.current.rotation.x += store.pointer.y * 0.1 * idle + Math.sin(t * 0.3) * 0.03 * idle;
       tilt.current.rotation.y += store.pointer.x * 0.16 * idle + Math.sin(t * 0.22) * 0.06 * idle - (1 - intro) * 1.3;
-      tilt.current.rotation.z += Math.cos(t * 0.27) * 0.02 * idle;
+      tilt.current.rotation.z += Math.cos(t * 0.27) * 0.02 * idle + exit * 0.7;
+      tilt.current.rotation.x -= exit * 0.6;
     }
 
     sculptureParts.forEach((part, i) => {
@@ -91,6 +97,7 @@ export function Sculpture({ detail }: { detail: "high" | "low" }) {
 
       lerp3(g.position, part.assembled.position, part.exploded.position, k);
       g.position.y *= 1 + (1 - intro) * 0.6;
+      g.position.multiplyScalar(1 + exit * 0.7);
       g.position.y += Math.sin(t * 0.8 + i * 0.9) * (0.012 + 0.07 * k) * idle;
       g.position.z += h * 0.3;
       lerp3(g.rotation, part.assembled.rotation, part.exploded.rotation, k);
@@ -164,7 +171,7 @@ function CoreGlow({ texture }: { texture: THREE.Texture }) {
   const sprite = useRef<THREE.Sprite>(null);
   const light = useRef<THREE.PointLight>(null);
   useFrame(({ clock }) => {
-    const night = smoothstep(phases.night[0], phases.night[1], store.progress);
+    const night = nightLevel(store);
     const pulse = store.reducedMotion ? 1 : 0.9 + Math.sin(clock.elapsedTime * 1.3) * 0.1;
     if (sprite.current) {
       (sprite.current.material as THREE.SpriteMaterial).opacity = night * 0.55 * pulse;
