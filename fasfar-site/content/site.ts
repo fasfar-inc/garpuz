@@ -39,12 +39,27 @@ export const beyond = {
   body: "FASFAR is a technology company creating and developing digital businesses across different industries.",
   /** Becomes a link once the destination page exists. */
   cta: { label: "Discover FASFAR" } as { label: string; href?: string },
-  scrollHint: ["Scroll up", "to revisit"],
+  scrollHint: ["Scroll", "to our ventures"],
 };
 
-/** Chapters drive the progress rail; append one per new home-page scene. */
+export const showcase = {
+  eyebrow: "Our ventures",
+  headline: ["BIG IDEAS.", "DIFFERENT WORLDS."],
+  body: "One company. Multiple visions for the future.",
+  /** Shown under visuals that depict an interface which is not the shipped product. */
+  conceptNote: "Concept visual",
+  illustrativeNote: "Illustrative data",
+  detailsUnavailable: "A dedicated page and website link will appear here once they are published.",
+};
+
+/**
+ * Chapters drive the progress rail and header highlighting; append one per new
+ * home-page scene. The first three live on the pinned stage timeline; later
+ * ones are standalone sections found by their `id`.
+ */
 export const chapters = [
   { id: "home", navId: "home" },
   { id: "ecosystem", navId: "ventures" },
   { id: "beyond", navId: "about" },
+  { id: "showcase", navId: "ventures" },
 ];

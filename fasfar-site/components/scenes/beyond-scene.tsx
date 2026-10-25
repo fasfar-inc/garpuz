@@ -33,7 +33,7 @@ const STATEMENT_FILLS = [
 /** WE THINK. / WE CREATE. / WE BUILD. — outlined, then filled by a clipping wipe. Below the canvas. */
 export function BeyondStatements() {
   return (
-    <div className="pointer-events-none absolute inset-0">
+    <div data-beyond-layer="statements" className="pointer-events-none absolute inset-0">
       <div
         data-beyond-statements
         className="absolute left-5 top-[21%] origin-top-left text-[14.6vw] font-medium leading-[0.94] tracking-[-0.045em] text-(--ink) [--indent:0.45em] md:left-[4.2vw] md:top-[19.5%] md:text-[min(9.4vw,15vh)] md:[--indent:0.85em]"
@@ -71,7 +71,7 @@ function StatementLine({ text, index }: { text: string; index: number }) {
 /** Eyebrow, headline, supporting text and the magnetic CTA. Above the canvas. */
 export function BeyondCopy() {
   return (
-    <div className="pointer-events-none absolute inset-0">
+    <div data-beyond-layer="copy" className="pointer-events-none absolute inset-0">
       <div className="absolute left-5 top-[92px] md:left-[4.2vw] md:top-[13%]">
         <span data-beyond="rise" className="invisible block h-px w-9 bg-(--ink)/60" />
         <p data-beyond="rise" className="eyebrow invisible mt-4">

@@ -16,9 +16,11 @@ import {
   TIMELINE_DURATION,
 } from "@/lib/stage/phases";
 import { createStageStore, StageContext } from "@/lib/stage/store";
+import { IVORY_THEME, NIGHT_THEME } from "@/lib/stage/theme";
 import { SiteHeader } from "@/components/layout/site-header";
 import { BeyondBackdrop, BeyondCopy, BeyondStatements } from "@/components/scenes/beyond-scene";
 import { EcosystemScene } from "@/components/scenes/ecosystem-scene";
+import { VentureShowcase } from "@/components/showcase/venture-showcase";
 import { HeroScene } from "@/components/scenes/hero-scene";
 import { StageBackdrop } from "@/components/scenes/stage-backdrop";
 import { StageChrome } from "@/components/scenes/stage-chrome";
@@ -33,24 +35,6 @@ const subscribeReduced = (cb: () => void) => {
   const mq = window.matchMedia(REDUCED);
   mq.addEventListener("change", cb);
   return () => mq.removeEventListener("change", cb);
-};
-
-/** Night palette for the theme variables the header and copy read. */
-const NIGHT_THEME = {
-  "--ink": "#eef1f8",
-  "--ink-muted": "rgba(222,229,244,0.68)",
-  "--hairline": "rgba(222,229,244,0.16)",
-  "--hairline-strong": "rgba(222,229,244,0.42)",
-  "--paper": "#0a1430",
-};
-
-/** Ivory palette, matching the `:root` defaults in globals.css. */
-const IVORY_THEME = {
-  "--ink": "#141312",
-  "--ink-muted": "rgba(20,19,18,0.62)",
-  "--hairline": "rgba(20,19,18,0.12)",
-  "--hairline-strong": "rgba(20,19,18,0.34)",
-  "--paper": "#f1ede6",
 };
 
 const span = (phase: readonly [number, number]) => phase[1] - phase[0];
@@ -73,6 +57,7 @@ const chapterAt = (time: number) =>
 export function HomeStage() {
   const [store] = useState(createStageStore);
   const stage = useRef<HTMLElement>(null);
+  const stageWrap = useRef<HTMLDivElement>(null);
   const [canvasReady, setCanvasReady] = useState(false);
   const reducedMotion = useSyncExternalStore(subscribeReduced, () => window.matchMedia(REDUCED).matches, () => false);
   useEffect(() => store.setReducedMotion(reducedMotion), [store, reducedMotion]);
@@ -92,6 +77,11 @@ export function HomeStage() {
     () => {
       const q = gsap.utils.selector(stage);
       const root = document.documentElement;
+      // The stage animates its palette on a proxy and writes it to the page
+      // only while the stage is in view, so its scrub smoothing can't repaint
+      // the header after a later section has set its own palette.
+      const theme = { ...IVORY_THEME };
+      const writeTheme = () => Object.entries(theme).forEach(([k, v]) => root.style.setProperty(k, v));
       const intro = document.querySelectorAll<HTMLElement>("[data-intro]");
 
       // Entrance.
@@ -136,7 +126,12 @@ export function HomeStage() {
           const time = tl.time();
           store.progress = clamp01(time / CHAPTER_TIMES[1]);
           store.outro = clamp01((time - CHAPTER_TIMES[1]) / S2);
-          store.setChapter(chapterAt(time));
+          // Scrub smoothing keeps updating after the pin releases; only claim
+          // the chapter while the stage is actually in view.
+          if (tl.scrollTrigger?.isActive) {
+            store.setChapter(chapterAt(time));
+            writeTheme();
+          }
           store.invalidate();
         },
       });
@@ -148,7 +143,7 @@ export function HomeStage() {
         .to(q("[data-night]"), { autoAlpha: 1, duration: span(phases.night) }, phases.night[0])
         .fromTo(q("[data-horizon]"), { yPercent: 45 }, { yPercent: 0, duration: 0.7, ease: "power1.out" }, 0.1)
         .fromTo(q("[data-planet]"), { xPercent: 18, yPercent: -18, scale: 0.9 }, { xPercent: 0, yPercent: 0, scale: 1, duration: 0.8 }, 0.1)
-        .to(root, { ...NIGHT_THEME, duration: span(phases.night) }, phases.night[0])
+        .to(theme, { ...NIGHT_THEME, duration: span(phases.night) }, phases.night[0])
         .to(q("[data-hint=hero]"), { autoAlpha: 0, y: -8, duration: 0.08 }, 0.4)
         .fromTo(q("[data-hint=eco]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.08 }, 0.46)
         .fromTo(
@@ -210,7 +205,7 @@ export function HomeStage() {
         .to(q("[data-night]"), { autoAlpha: 0, duration: span3(beyondPhases.day) }, at3(beyondPhases.day[0]))
         .to(q("[data-horizon]"), { yPercent: 70, duration: span3(beyondPhases.day) * 1.2, ease: "power1.in" }, at3(beyondPhases.day[0] - 0.04))
         .to(q("[data-planet]"), { yPercent: -35, xPercent: 12, duration: span3(beyondPhases.day) * 1.2 }, at3(beyondPhases.day[0] - 0.04))
-        .to(root, { ...IVORY_THEME, duration: span3(beyondPhases.day) }, at3(beyondPhases.day[0]))
+        .to(theme, { ...IVORY_THEME, duration: span3(beyondPhases.day) }, at3(beyondPhases.day[0]))
         .to(q("[data-beyond-backdrop]"), { autoAlpha: 1, duration: span3(beyondPhases.day) }, at3(beyondPhases.day[0]))
         .to(q("[data-manifesto]"), { autoAlpha: 0, duration: span3(beyondPhases.day) * 0.5 }, at3(beyondPhases.day[0]))
         .to(q("[data-hint=eco]"), { autoAlpha: 0, y: -8, duration: 0.08 }, at3(0.26))
@@ -258,8 +253,21 @@ export function HomeStage() {
           { y: 0, autoAlpha: 1, stagger: 0.05, duration: span3(beyondPhases.copyIn) * 0.6, ease: "power2.out" },
           at3(beyondPhases.copyIn[0] + 0.05),
         )
-        .to(q("[data-rail-fill]"), { scaleX: 1, duration: S2 }, at3(0));
+        .to(q("[data-rail-fill]"), { scaleX: CHAPTER_TIMES.length / chapters.length, duration: S2 }, at3(0));
 
+      // Leaving the stage for Scene 4: as the pin releases, Scene 3's layers
+      // part at different speeds instead of scrolling away as one flat page.
+      if (!reducedMotion) {
+        gsap
+          .timeline({ scrollTrigger: { trigger: stageWrap.current, start: "bottom bottom", end: "bottom top", scrub: true } })
+          .to(q("[data-beyond-layer=statements]"), { yPercent: -22, autoAlpha: 0.15, ease: "none" }, 0)
+          .to(q("[data-beyond-layer=copy]"), { yPercent: 12, autoAlpha: 0, ease: "none" }, 0);
+      }
+
+      // Sections after the stage (Scene 4) created their triggers first;
+      // re-measure them now that the stage's pin spacing exists.
+      ScrollTrigger.sort();
+      ScrollTrigger.refresh();
       document.fonts?.ready.then(() => ScrollTrigger.refresh());
     },
     { scope: stage, dependencies: [reducedMotion], revertOnUpdate: true },
@@ -273,6 +281,13 @@ export function HomeStage() {
       const index = id === "top" ? 0 : chapters.findIndex((c) => c.id === id);
       if (!link || index < 0) return;
       e.preventDefault();
+      // Chapters after the stage are ordinary sections.
+      if (index >= CHAPTER_TIMES.length) {
+        const target = document.getElementById(id!);
+        if (target) window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY, behavior: reducedMotion ? "auto" : "smooth" });
+        history.replaceState(null, "", `#${id}`);
+        return;
+      }
       const trigger = ScrollTrigger.getAll().find((t) => t.trigger === stage.current);
       const top = trigger ? trigger.start + (trigger.end - trigger.start) * (CHAPTER_TIMES[index] / TIMELINE_DURATION) : 0;
       window.scrollTo({ top, behavior: reducedMotion ? "auto" : "smooth" });
@@ -285,7 +300,7 @@ export function HomeStage() {
   return (
     <StageContext.Provider value={store}>
       <SiteHeader />
-      <div className="relative">
+      <div ref={stageWrap} className="relative">
         <section ref={stage} id="top" aria-label="FASFAR — ventures" className="relative h-svh w-full overflow-hidden">
           <StageBackdrop />
 
@@ -312,7 +327,7 @@ export function HomeStage() {
           <BeyondCopy />
           <StageChrome />
         </section>
-        {chapters.slice(1).map((c, i) => (
+        {chapters.slice(1, CHAPTER_TIMES.length).map((c, i) => (
           <span
             key={c.id}
             id={c.id}
@@ -322,6 +337,7 @@ export function HomeStage() {
           />
         ))}
       </div>
+      <VentureShowcase />
     </StageContext.Provider>
   );
 }
