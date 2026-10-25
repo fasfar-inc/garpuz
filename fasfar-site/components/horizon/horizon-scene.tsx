@@ -62,6 +62,8 @@ export function HorizonScene() {
   const [canvasReady, setCanvasReady] = useState(false);
   const [inView, setInView] = useState(false);
   const near = useNear(section);
+  // Render only while the scene is on (or just off) screen; stay mounted a bit longer so returning is instant.
+  const visible = useNear(section, 0.15);
   const webgl = useSyncExternalStore(subscribeNever, supportsWebGL, () => false);
   const reducedMotion = useSyncExternalStore(subscribeReduced, () => window.matchMedia(REDUCED).matches, () => false);
 
@@ -212,7 +214,7 @@ export function HorizonScene() {
         <div className="absolute inset-0 transition-opacity duration-[1400ms] ease-out" style={{ opacity: canvasReady ? 1 : 0 }}>
           {webgl && near && (
             <CanvasBoundary>
-              <HorizonCanvas state={state} reducedMotion={reducedMotion} active={inView || near} onReady={() => setCanvasReady(true)} />
+              <HorizonCanvas state={state} reducedMotion={reducedMotion} active={inView || visible} onReady={() => setCanvasReady(true)} />
             </CanvasBoundary>
           )}
         </div>

@@ -24,6 +24,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { BeyondBackdrop, BeyondCopy, BeyondStatements } from "@/components/scenes/beyond-scene";
 import { EcosystemScene } from "@/components/scenes/ecosystem-scene";
 import { HorizonScene } from "@/components/horizon/horizon-scene";
+import { InsideFasfar } from "@/components/inside/inside-fasfar";
 import { VentureShowcase } from "@/components/showcase/venture-showcase";
 import { HeroScene } from "@/components/scenes/hero-scene";
 import { StageBackdrop } from "@/components/scenes/stage-backdrop";
@@ -290,28 +291,54 @@ export function HomeStage() {
     { scope: stage, dependencies: [reducedMotion], revertOnUpdate: true },
   );
 
-  // Hash links (#top / #ecosystem / #beyond) jump to that chapter on the pinned stage.
+  // In-page links: #top and the stage chapters map to points on the pinned
+  // stage timeline; any other #id is a section further down. Long jumps skip
+  // straight to just before the target and glide the last stretch, so a
+  // visitor never has to sit through every scene on the way.
   useEffect(() => {
+    const targetTop = (id: string) => {
+      const index = id === "top" ? 0 : chapters.findIndex((c) => c.id === id);
+      if (index >= 0 && index < CHAPTER_TIMES.length) {
+        const trigger = ScrollTrigger.getAll().find((t) => t.trigger === stage.current);
+        return trigger ? trigger.start + (trigger.end - trigger.start) * (CHAPTER_TIMES[index] / TIMELINE_DURATION) : 0;
+      }
+      const el = document.getElementById(id);
+      return el ? el.getBoundingClientRect().top + window.scrollY : null;
+    };
+    const go = (id: string, smooth: boolean) => {
+      const top = targetTop(id);
+      if (top === null) return false;
+      const distance = top - window.scrollY;
+      const glide = window.innerHeight * 0.8;
+      if (!smooth || Math.abs(distance) <= glide * 3) {
+        window.scrollTo({ top, behavior: smooth ? "smooth" : "auto" });
+      } else {
+        window.scrollTo({ top: top - Math.sign(distance) * glide, behavior: "auto" });
+        requestAnimationFrame(() => window.scrollTo({ top, behavior: "smooth" }));
+      }
+      return true;
+    };
     const onClick = (e: MouseEvent) => {
       const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');
       const id = link?.getAttribute("href")?.slice(1);
-      const index = id === "top" ? 0 : chapters.findIndex((c) => c.id === id);
-      if (!link || index < 0) return;
+      if (!link || !id || targetTop(id) === null) return;
       e.preventDefault();
-      // Chapters after the stage are ordinary sections.
-      if (index >= CHAPTER_TIMES.length) {
-        const target = document.getElementById(id!);
-        if (target) window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY, behavior: reducedMotion ? "auto" : "smooth" });
-        history.replaceState(null, "", `#${id}`);
-        return;
-      }
-      const trigger = ScrollTrigger.getAll().find((t) => t.trigger === stage.current);
-      const top = trigger ? trigger.start + (trigger.end - trigger.start) * (CHAPTER_TIMES[index] / TIMELINE_DURATION) : 0;
-      window.scrollTo({ top, behavior: reducedMotion ? "auto" : "smooth" });
-      history.replaceState(null, "", index === 0 ? location.pathname : `#${id}`);
+      go(id, !reducedMotion);
+      history.replaceState(null, "", id === "top" ? location.pathname : `#${id}`);
     };
     document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+
+    // Arriving with a hash (e.g. /#inside): jump once the pinned sections are measured.
+    const initial = location.hash.slice(1);
+    let cancelled = false;
+    if (initial) {
+      const settle = () => !cancelled && requestAnimationFrame(() => requestAnimationFrame(() => go(initial, false)));
+      (document.fonts?.ready ?? Promise.resolve()).then(() => setTimeout(settle, 120));
+    }
+    return () => {
+      cancelled = true;
+      document.removeEventListener("click", onClick);
+    };
   }, [reducedMotion]);
 
   return (
@@ -360,6 +387,7 @@ export function HomeStage() {
       </div>
       <VentureShowcase />
       <HorizonScene />
+      <InsideFasfar />
     </StageContext.Provider>
   );
 }

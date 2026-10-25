@@ -8,7 +8,7 @@ export const navigation: NavItem[] = [
   { id: "home", label: "Home", href: "#top" },
   { id: "ventures", label: "Our Ventures", href: "#ecosystem" },
   { id: "technology", label: "Technology" },
-  { id: "about", label: "About", href: "#beyond" },
+  { id: "about", label: "About", href: "#inside" },
   { id: "careers", label: "Careers" },
 ];
 
@@ -38,7 +38,7 @@ export const beyond = {
   headline: ["More than one idea.", "More than one industry."],
   body: "FASFAR is a technology company creating and developing digital businesses across different industries.",
   /** Becomes a link once the destination page exists. */
-  cta: { label: "Discover FASFAR" } as { label: string; href?: string },
+  cta: { label: "Discover FASFAR", href: "#inside" } as { label: string; href?: string },
   scrollHint: ["Scroll", "to our ventures"],
 };
 
@@ -62,7 +62,7 @@ export const horizon = {
   visionBody:
     "FASFAR develops digital businesses and technology-driven ideas across industries. Our ambition is to create useful products, explore new opportunities, and build for the long term.",
   /** Becomes a link once a vision page exists. */
-  cta: { label: "Discover Our Vision" } as { label: string; href?: string },
+  cta: { label: "Discover Our Vision", href: "#how-we-build" } as { label: string; href?: string },
 };
 
 /**
@@ -76,4 +76,5 @@ export const chapters = [
   { id: "beyond", navId: "about" },
   { id: "showcase", navId: "ventures" },
   { id: "horizon", navId: "about" },
+  { id: "inside", navId: "about" },
 ];

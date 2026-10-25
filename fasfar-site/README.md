@@ -4,7 +4,7 @@ The official FASFAR website: Next.js App Router, TypeScript, Tailwind CSS v4, GS
 
 This is a standalone app with its own dependencies, so it can move to its own repository unchanged. The parent repository's lint and typecheck exclude this folder.
 
-The home page is one continuous scroll experience. So far it has five scenes:
+The home page is one continuous scroll experience. So far it has six scenes:
 
 1. **Hero:** ivory studio, the oversized FASFAR wordmark, and a floating chrome and glass sculpture with an entrance and idle motion.
 2. **Ecosystem:** scrolling splits the sculpture into components, the stage turns midnight blue, the camera swings round, and the venture cards appear with leader lines tied to the 3D parts.
@@ -23,6 +23,12 @@ The home page is one continuous scroll experience. So far it has five scenes:
    - The signature sculpture's parts float in the dark, then fly along curved paths into the Scene 1 assembled pose. It lights from within as the camera circles it once.
    - Dawn turns the scene ivory. NO LIMITS. / NO BOUNDARIES. / JUST POSSIBILITIES. each have their own entrance and exit.
    - The sculpture settles beside "Building what comes next." and the Discover Our Vision button.
+
+6. **Inside FASFAR:** the corporate chapter, in a quieter editorial register: ivory, black type, thin architectural lines, glass and metal accents.
+   - Intro: Scene 5 fades into the ivory, lines draw across the page, and INSIDE FASFAR / ONE COMPANY. / ENDLESS POSSIBILITIES. rise through masks.
+   - How we build (`#how-we-build`): CREATE, BUILD, OPERATE and GROW. On desktop it's a pinned sequence where the word swaps, the lines re-organise, the linework redraws and a metal sphere moves with each step. Elsewhere it's a vertical list.
+   - Structure (`#structure`): FASFAR at the centre, linked to the ventures it develops. Desktop: hover traces a link, and click opens the venture's details. Mobile: an expandable tree.
+   - Company profile (`#company-profile`): "Built to create. Designed to evolve." with the description and the About FASFAR call to action.
 
 Every transition is scrubbed by the scroll, so scrolling back up reverses it.
 
@@ -43,6 +49,9 @@ content/                 What the site says: edit these to change the site
   ventures.ts            Venture registry: cards, showcase data (industry, description, colours,
                          logo, media, visual, url, page), sculpture anchors
   site.ts                Navigation, copy, chapters (progress rail)
+  company.ts             Scene 6: intro, how-we-build steps, structure groups, profile, and
+                         company info (history, leadership, divisions, offices, partnerships,
+                         announcements — each shown only once it has verified entries)
 lib/stage/
   store.ts               Shared state between the GSAP timeline and WebGL (no React renders on scroll)
   phases.ts              Timeline segments and where each beat sits in them (used by DOM and 3D)
@@ -57,6 +66,8 @@ components/
   horizon/               Scene 5: pinned timeline and DOM layers (words, statements, vision)
   three/horizon/         Scene 5 canvas: assembling sculpture (choreography.ts holds the flight paths),
                          horizon atmosphere, camera
+  inside/                Scene 6: orchestrator, intro, how-we-build, structure diagram, profile,
+                         company-info blocks, shared linework
   showcase/              Scene 4: orchestrator, intro, panel, details sheet, recipes.ts
                          (per-visual choreography) and visuals/ (one per venture type)
   ventures/              Venture card, marks (Scene 2), official logos
@@ -79,6 +90,8 @@ How the layers fit together:
   - Ecosystem extras: optionally add its mark in `components/ventures/venture-mark.tsx`; without one it falls back to a monogram. `anchor` picks the sculpture part its leader line attaches to. The ecosystem scene places up to six featured ventures; add a slot in `ecosystem-scene.tsx` to show more.
 - **New page:** add a route under `app/` and give its nav item an `href` in `content/site.ts`. Items without an `href` render as "coming soon".
 - **New home scene:** append a chapter in `content/site.ts`, add a segment (`SEGMENT_VH`) and its phases in `phases.ts`, add a DOM layer under `components/scenes/`, and add its tweens after the last segment in `home-stage.tsx`. Earlier segments keep their timing, so existing scenes don't change.
+- **Company information:** fill the lists in `content/company.ts` (`companyInfo`); each block appears under the profile once it has entries. Add structure groups (divisions, operating units) the same way: empty groups are hidden, and each new group gets its own ring in the diagram and its own branch in the mobile tree.
+- **Navigation:** any `#id` link scrolls there. Long jumps skip instantly to just before the target and glide the rest, and arriving with a hash (`/#inside`) works.
 - **Re-shape the sculpture:** edit the assembled and exploded poses in `components/three/sculpture/parts.ts`.
 
 Scene 4 has two layouts, chosen with `gsap.matchMedia`:
@@ -94,6 +107,7 @@ Visuals of interfaces that don't exist yet are marked "Concept visual". Prices, 
 - The canvas loads client-side only. It pauses when off screen and drops to 1× DPR if the frame rate falls. Phones get lower-detail geometry and fewer stars.
 - With `prefers-reduced-motion`, there is no entrance animation, idle motion, snapping, magnetic pull, Scene 3 zoom or Scene 4 pinning. Venture content fades rather than flies, frames render on demand, and scrolling still moves between the scenes.
 - Scene 4 is DOM and CSS 3D only. Scene 5 has its own canvas, built from the same sculpture parts, materials and studio lighting. Each canvas is mounted only near its own section (`useNear`), so at most one WebGL context is live.
+- Scene 6 uses no WebGL, only SVG and CSS. Its pins are desktop-only, and phones and reduced motion scroll normally. Scene 5's canvas stops rendering once you scroll past it.
 - A shared palette ticker (`lib/stage/palette.ts`) writes the header colours for whichever section owns the scroll position.
 - Venture cards are keyboard-focusable. Focusing or hovering a card highlights its part of the sculpture, and hovering a part highlights its card.
 - The figures beside the hero are counted from the registry. Nothing is hard-coded.
