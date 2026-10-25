@@ -96,6 +96,63 @@ body {
   }
 }
 
+/* Scene 7 opportunity panel: a wipe from the right on desktop, a sheet from the bottom on mobile. */
+@keyframes panel-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes panel-down {
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes panel-wipe-in {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+@keyframes panel-wipe-out {
+  to {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+@keyframes panel-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+.connection-panel[open] {
+  animation: panel-up 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.connection-panel[open]::backdrop {
+  animation: fade-in 0.45s ease-out;
+}
+.connection-panel[open] [data-panel-item] {
+  animation: panel-item-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.15s + var(--i, 0) * 0.07s);
+}
+.connection-panel[data-closing] {
+  animation: panel-down 0.38s cubic-bezier(0.64, 0, 0.78, 0) forwards;
+}
+.connection-panel[data-closing]::backdrop {
+  animation: fade-out 0.38s ease-in forwards;
+}
+@media (min-width: 768px) {
+  .connection-panel[open] {
+    animation: panel-wipe-in 0.75s cubic-bezier(0.76, 0, 0.24, 1);
+  }
+  .connection-panel[data-closing] {
+    animation: panel-wipe-out 0.38s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  }
+}
+
 /* Venture details sheet: slides from the right on desktop, up from the bottom on mobile. */
 @keyframes sheet-up {
   from {
@@ -130,7 +187,12 @@ html {
 
 @media (prefers-reduced-motion: reduce) {
   .venture-sheet[open],
-  .venture-sheet[open]::backdrop {
+  .venture-sheet[open]::backdrop,
+  .connection-panel[open],
+  .connection-panel[open]::backdrop,
+  .connection-panel[open] [data-panel-item],
+  .connection-panel[data-closing],
+  .connection-panel[data-closing]::backdrop {
     animation: none;
   }
 

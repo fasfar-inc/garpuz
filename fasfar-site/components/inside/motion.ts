@@ -5,5 +5,9 @@ export const REDUCED = "(prefers-reduced-motion: reduce)";
 export const CONDITIONS = { always: "all", cinematic: CINEMATIC, reduced: REDUCED };
 export type Conditions = { always: boolean; cinematic: boolean; reduced: boolean };
 
-/** Scene 6 refreshes after Scene 5 (-2); later parts after earlier ones. */
+/**
+ * ScrollTrigger refresh order: earlier sections first (higher numbers refresh
+ * first). Scene 5 is -2; Scene 6 follows, then Scene 7.
+ */
 export const PRIORITY = { arrival: -3, intro: -3, process: -4, structure: -5, profile: -6 } as const;
+export const CONNECTION_PRIORITY = { arrival: -7, intro: -7, network: -8, invitation: -9 } as const;

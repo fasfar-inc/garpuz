@@ -77,4 +77,5 @@ export const chapters = [
   { id: "showcase", navId: "ventures" },
   { id: "horizon", navId: "about" },
   { id: "inside", navId: "about" },
+  { id: "connection", navId: "contact" },
 ];

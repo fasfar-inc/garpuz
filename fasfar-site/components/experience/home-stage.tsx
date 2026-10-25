@@ -24,6 +24,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { BeyondBackdrop, BeyondCopy, BeyondStatements } from "@/components/scenes/beyond-scene";
 import { EcosystemScene } from "@/components/scenes/ecosystem-scene";
 import { HorizonScene } from "@/components/horizon/horizon-scene";
+import { ConnectionScene } from "@/components/connection/connection-scene";
 import { InsideFasfar } from "@/components/inside/inside-fasfar";
 import { VentureShowcase } from "@/components/showcase/venture-showcase";
 import { HeroScene } from "@/components/scenes/hero-scene";
@@ -388,6 +389,7 @@ export function HomeStage() {
       <VentureShowcase />
       <HorizonScene />
       <InsideFasfar />
+      <ConnectionScene />
     </StageContext.Provider>
   );
 }
