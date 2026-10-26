@@ -1,0 +1,101 @@
+/**
+ * Where each beat of the home stage sits on the pinned scroll timeline.
+ *
+ * The stage is split into segments, one per scene transition. Each segment
+ * has its own 0 → 1 progress (`store.progress` for Scene 1 → 2,
+ * `store.outro` for Scene 2 → 3), and the DOM timeline and the WebGL scene
+ * both read these phase ranges, so the two layers stay in sync when the
+ * choreography changes.
+ */
+
+/** Scene 1 → Scene 2, on `store.progress`. */
+export const phases = {
+  heroOut: [0, 0.3],
+  explode: [0.04, 0.66],
+  camera: [0.02, 0.78],
+  night: [0.12, 0.55],
+  headlineIn: [0.42, 0.66],
+  cardsIn: [0.55, 0.9],
+} as const satisfies Record<string, readonly [number, number]>;
+
+/** Scene 2 → Scene 3 ("Beyond the ordinary"), on `store.outro`. */
+export const beyondPhases = {
+  ecosystemOut: [0, 0.1],
+  sculptureExit: [0.02, 0.3],
+  camera: [0.04, 0.42],
+  day: [0.06, 0.32],
+  eyebrowIn: [0.14, 0.22],
+  statements: [
+    { reveal: [0.2, 0.3], fill: [0.25, 0.34] },
+    { reveal: [0.36, 0.46], fill: [0.41, 0.5] },
+    { reveal: [0.52, 0.62], fill: [0.57, 0.66] },
+  ],
+  settle: [0.66, 0.8],
+  copyIn: [0.74, 0.9],
+  floatersIn: [0.22, 0.84],
+} as const;
+
+/** Pinned scroll distance per segment, in viewport heights. */
+export const SEGMENT_VH = [260, 420] as const;
+
+/** Timeline time at which each chapter is fully on screen (segment 1 spans 0 → 1). */
+export const SEGMENT_DURATIONS = SEGMENT_VH.map((vh) => vh / SEGMENT_VH[0]);
+export const TIMELINE_DURATION = SEGMENT_DURATIONS.reduce((a, b) => a + b, 0);
+export const CHAPTER_TIMES = [0, SEGMENT_DURATIONS[0], TIMELINE_DURATION];
+export const STAGE_TOTAL_VH = SEGMENT_VH.reduce((a, b) => a + b, 0);
+
+/**
+ * Scene 5 — The Horizon, on its own pinned timeline (0 → 1). The DOM layers
+ * and the Horizon canvas both read these ranges.
+ */
+export const horizonPhases = {
+  // Part 1 — entering the horizon.
+  atmosphere: [0, 0.08],
+  tagline: [0.025, 0.08],
+  headline: [0.075, 0.15],
+  part1Out: [0.17, 0.22],
+  // Part 2 — the transformation.
+  scatterIn: [0.17, 0.3],
+  approach: [0, 0.52],
+  assemble: [0.28, 0.54],
+  illuminate: [0.48, 0.58],
+  orbit: [0.5, 0.68],
+  // Part 3 — the vision.
+  dawn: [0.6, 0.7],
+  statements: [
+    { in: [0.645, 0.685], out: [0.71, 0.735] },
+    { in: [0.73, 0.77], out: [0.795, 0.82] },
+    { in: [0.815, 0.855], out: [0.875, 0.895] },
+  ],
+  // Part 4 — company vision.
+  vision: [0.89, 0.97],
+} as const;
+
+/** Scene 5 pinned scroll distance, in viewport heights. */
+export const HORIZON_VH = { desktop: 8.5, compact: 7 } as const;
+
+/**
+ * Scene 8 — The Grand Finale, on its own pinned timeline (0 → 1). The DOM
+ * layers and the Finale canvas both read these ranges.
+ */
+export const finalePhases = {
+  // Part 1 — the final transition.
+  linesOut: [0, 0.09],
+  night: [0.02, 0.12],
+  threads: [0.03, 0.14],
+  travel: [0.04, 0.36],
+  reveal: [0.16, 0.36],
+  // Part 2 — the signature transformation.
+  turn: [0.32, 0.62],
+  separate: [0.4, 0.62],
+  frontal: [0.34, 0.64],
+  wordmark: [0.44, 0.62],
+  // Part 3 — the grand reveal.
+  dawn: [0.64, 0.76],
+  rise: [0.66, 0.8],
+  headline: [0.72, 0.86],
+  copy: [0.84, 0.94],
+} as const;
+
+/** Scene 8 pinned scroll distance, in viewport heights. */
+export const FINALE_VH = { desktop: 5.5, compact: 4.2 } as const;

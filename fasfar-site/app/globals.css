@@ -1,0 +1,268 @@
+@import "tailwindcss";
+
+/* Full mockup composition: wide AND tall enough. Shorter laptops get the compact layout. */
+@custom-variant tall (@media (min-width: 1280px) and (min-height: 860px));
+
+@theme {
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Theme variables. The home stage tweens these from ivory to midnight. */
+:root {
+  --paper: #f1ede6;
+  --ink: #141312;
+  --ink-muted: rgba(20, 19, 18, 0.62);
+  --hairline: rgba(20, 19, 18, 0.12);
+  --hairline-strong: rgba(20, 19, 18, 0.34);
+  color-scheme: light;
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #141312;
+  color: #f1ede6;
+}
+
+@utility eyebrow {
+  font-size: 11px;
+  line-height: 1.45;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+@keyframes cue {
+  0%,
+  100% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(4px);
+    opacity: 0.5;
+  }
+}
+
+/* Scene 4 visuals. */
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.55;
+  }
+}
+
+@keyframes scan {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -26;
+  }
+}
+
+/* Scene 6: a pulse travelling along a structure link (pathLength = 1). */
+@keyframes link-pulse {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Scene 7 opportunity panel: a wipe from the right on desktop, a sheet from the bottom on mobile. */
+@keyframes panel-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes panel-down {
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes panel-wipe-in {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+@keyframes panel-wipe-out {
+  to {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+@keyframes panel-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+.connection-panel[open] {
+  animation: panel-up 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.connection-panel[open]::backdrop {
+  animation: fade-in 0.45s ease-out;
+}
+.connection-panel[open] [data-panel-item] {
+  animation: panel-item-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.15s + var(--i, 0) * 0.07s);
+}
+.connection-panel[data-closing] {
+  animation: panel-down 0.38s cubic-bezier(0.64, 0, 0.78, 0) forwards;
+}
+.connection-panel[data-closing]::backdrop {
+  animation: fade-out 0.38s ease-in forwards;
+}
+@media (min-width: 768px) {
+  .connection-panel[open] {
+    animation: panel-wipe-in 0.75s cubic-bezier(0.76, 0, 0.24, 1);
+  }
+  .connection-panel[data-closing] {
+    animation: panel-wipe-out 0.38s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  }
+}
+
+/* Venture details sheet: slides from the right on desktop, up from the bottom on mobile. */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.venture-sheet[open] {
+  animation: sheet-up 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.venture-sheet[open]::backdrop {
+  animation: fade-in 0.4s ease-out;
+}
+@media (min-width: 768px) {
+  .venture-sheet[open] {
+    animation-name: sheet-in;
+  }
+}
+
+/* Scene 8 contact panel: a circle of midnight growing out of the button that opened it. */
+@keyframes contact-open {
+  from {
+    clip-path: circle(0px at var(--cx, 50%) var(--cy, 50%));
+  }
+  to {
+    clip-path: circle(150vmax at var(--cx, 50%) var(--cy, 50%));
+  }
+}
+@keyframes contact-close {
+  from {
+    clip-path: circle(150vmax at var(--cx, 50%) var(--cy, 50%));
+  }
+  to {
+    clip-path: circle(0px at var(--cx, 50%) var(--cy, 50%));
+  }
+}
+@keyframes contact-line-in {
+  from {
+    transform: translateY(105%);
+  }
+}
+.contact-panel[open] {
+  animation: contact-open 0.9s cubic-bezier(0.7, 0, 0.2, 1) both;
+}
+.contact-panel[data-closing] {
+  animation: contact-close 0.65s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+.contact-panel[open] [data-cp-line] {
+  animation: contact-line-in 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.35s + var(--i, 0) * 0.09s);
+}
+.contact-panel[open] [data-cp-item] {
+  animation: panel-item-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.45s + var(--i, 0) * 0.08s);
+}
+
+/* Footer: the mini sculpture's components part gently on hover or focus. */
+.mini-part {
+  transform-box: fill-box;
+  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.group:hover .mini-part,
+.group:focus-visible .mini-part {
+  transform: translateY(var(--spread, 0px));
+}
+@keyframes footer-pulse {
+  from {
+    left: -10rem;
+  }
+  to {
+    left: 100%;
+  }
+}
+.footer-pulse {
+  animation: footer-pulse 7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .venture-sheet[open],
+  .venture-sheet[open]::backdrop,
+  .connection-panel[open],
+  .connection-panel[open]::backdrop,
+  .connection-panel[open] [data-panel-item],
+  .connection-panel[data-closing],
+  .connection-panel[data-closing]::backdrop,
+  .contact-panel[open],
+  .contact-panel[data-closing],
+  .contact-panel[open] [data-cp-line],
+  .contact-panel[open] [data-cp-item],
+  .footer-pulse {
+    animation: none;
+  }
+  .mini-part {
+    transition: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
