@@ -46,7 +46,7 @@ export default async function AddShopPage({ searchParams }: { searchParams: Prom
           </form>
         </> : <>
           {error && <p role="alert" className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-center text-sm text-red-700">{t.register.errorSignin}</p>}
-          <div className="mt-8"><GoogleShopSignIn next="/business/register" labels={t.google} /></div>
+          <div className="mt-8"><GoogleShopSignIn next="/business/register" clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID} locale={locale} labels={t.google} /></div>
           <p className="mt-6 text-center text-xs leading-5 text-[#839087]">{t.register.justLooking}</p>
           <p className="text-center"><Link href="/" className="mt-1 inline-block text-sm font-bold text-[#07834A] hover:underline">{t.register.searchFreely}</Link></p>
         </>}
