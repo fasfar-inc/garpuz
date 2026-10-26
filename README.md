@@ -52,6 +52,15 @@ The merchant flow is deliberately short and mobile-first:
 
 Product matching happens behind the scenes so customers can compare shops' prices for the same product: the typed name is compared with catalog products' full title ("Apple iPhone 15 128GB") or title without the brand, ignoring case and spacing. A name the catalog does not know becomes a new catalog product with no brand, filed under the chosen category. A matched product keeps its catalog category unless that is `Other`, which the shop's choice fills in (as with photos, a shop never overrides what the catalog already has). Shops have no write access to `canonical_products`; new products and photos are added by server code with the service role after the shop is verified. Photos (JPG, PNG or WebP up to 5 MB, checked by file signature) go to the public `product-images` bucket, created on first upload, and only fill in a product that has no photo yet.
 
+### Google sign-in
+
+With `NEXT_PUBLIC_GOOGLE_CLIENT_ID` set, "Add shop" (and the admin sign-in) show Google's own sign-in button on GARPUZ. Google's sign-in window then names the site's address instead of the Supabase project's (`<ref>.supabase.co`), and the ID token is passed to Supabase with `signInWithIdToken` and a hashed nonce. Without the variable, or if Google's script cannot load, the page falls back to Supabase's redirect sign-in. Setup:
+
+1. Google Cloud Console → APIs & Services → Credentials → the OAuth web client used by Supabase → **Authorized JavaScript origins**: add `https://garpuz.vercel.app` (and later `https://garpuz.com`, `https://www.garpuz.com`). Copy its **Client ID**.
+2. Supabase → Authentication → Providers → Google: that Client ID must be among the provider's client IDs; leave nonce checks on.
+3. Vercel → Environment Variables: `NEXT_PUBLIC_GOOGLE_CLIENT_ID` = the Client ID, then redeploy (it is inlined at build time).
+4. Google Cloud → OAuth consent screen: app name GARPUZ, logo, home page and privacy policy (`/privacy`), and publish the app ("In production") so any Google account can sign in.
+
 Links to the earlier dashboard screens (`/dashboard/products`, `/dashboard/import`, `/dashboard/settings`, `/dashboard/profile`, `/business/setup`) redirect to the new screens.
 
 ## Admin dashboard

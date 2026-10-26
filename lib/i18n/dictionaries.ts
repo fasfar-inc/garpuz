@@ -103,7 +103,7 @@ const en = {
     searchFreely: "Search products freely",
     errorSignin: "Google sign-in did not complete. Please try again.",
   },
-  google: { continue: "Continue with Google", connecting: "Connecting…", unavailable: "Google sign-in will be available once Supabase is connected." },
+  google: { continue: "Continue with Google", connecting: "Signing you in…", unavailable: "Google sign-in will be available once Supabase is connected.", failed: "Google sign-in did not complete. Please try again." },
   setup: {
     heading: "Your shop",
     body: "Three details and you’re ready.",
@@ -276,7 +276,7 @@ const tr: Dictionary = {
     searchFreely: "Ürünleri ücretsiz ara",
     errorSignin: "Google ile giriş tamamlanamadı. Lütfen tekrar deneyin.",
   },
-  google: { continue: "Google ile devam et", connecting: "Bağlanıyor…", unavailable: "Google ile giriş, Supabase bağlandığında kullanılabilir olacak." },
+  google: { continue: "Google ile devam et", connecting: "Giriş yapılıyor…", unavailable: "Google ile giriş, Supabase bağlandığında kullanılabilir olacak.", failed: "Google ile giriş tamamlanamadı. Lütfen tekrar deneyin." },
   setup: {
     heading: "Mağazan",
     body: "Üç bilgi ve hazırsın.",

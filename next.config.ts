@@ -5,14 +5,17 @@ const supabaseOrigin = (() => {
 })();
 
 // Next.js injects inline bootstrap scripts, so scripts need 'unsafe-inline' without a nonce setup.
-// The policy still blocks third-party scripts, framing, plugins and foreign form targets.
+// The policy still blocks third-party scripts, framing, plugins and foreign form targets; the one
+// exception is Google's sign-in button (accounts.google.com/gsi), used on "Add shop".
+const googleSignIn = "https://accounts.google.com/gsi/";
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline' ${googleSignIn}client${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
+  `style-src 'self' 'unsafe-inline' ${googleSignIn}style`,
+  `frame-src ${googleSignIn}`,
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  `connect-src 'self'${supabaseOrigin ? ` ${supabaseOrigin} ${supabaseOrigin.replace(/^http/, "ws")}` : ""}`,
+  `connect-src 'self' ${googleSignIn}${supabaseOrigin ? ` ${supabaseOrigin} ${supabaseOrigin.replace(/^http/, "ws")}` : ""}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
